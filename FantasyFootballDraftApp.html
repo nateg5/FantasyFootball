@@ -230,12 +230,18 @@
         "DEF": []
       };
       console.log(rawData);
-      let numberOfTeams = 10;
-      let currentTeamIndex = 0;
-      let mimimaxMaxTime = 1000;
+
+      let searchArray = location.search.substring(1).split("&");
+      let params = {};
+      for(let i in searchArray) {
+        let param = searchArray[i].split("=");
+        params[param[0]] = Number(param[1]);
+      }
+      let numberOfTeams = params.numberOfTeams || 10;
+      let minimaxMaxTime = params.minimaxMaxTime || 100;
+
       let numberOfStarters = 9;
       let defaultPositions = ["QB", "RB", "RB", "WR", "WR", "TE", "FL", "K", "DEF", "QB", "RB", "WR", "TE", "FL", "K", "DEF"];
-      let possiblePositions = ["QB", "RB", "WR", "TE", "FL", "K", "DEF"];
       let possiblePositionsMapStarters = {
         "QB": 1,
         "RB": 2,
@@ -429,8 +435,8 @@
         }
       }
 
-      function getSimplePick() {
-        let teamPlayers = draftResults[currentTeamIndex];
+      function getSimplePick(teamIndex) {
+        let teamPlayers = draftResults[teamIndex];
         let missingPositions = [];
         missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions);
         let simplePick = getNextAvailablePlayer(missingPositions);
@@ -486,7 +492,6 @@
 
       let INFINITY = 1000000;
       let bestMove = "";
-      let depthDiff = 1;
       function getMinimaxPick(depth, alpha, beta, teamIndex, maxDepth, maxTeamIndex, direction, movesToUse) {
         let moves = [];
 
@@ -584,9 +589,6 @@
         }
         console.log("stddev", stddev(teamTotals));
         console.log("draft total", total);
-        console.log("initialMovesToUse", initialMovesToUse);
-        console.log("depthDiff", depthDiff);
-        console.log("initialDepth", initialDepth);
       }
 
       function getRemainingPickCount() {
@@ -598,39 +600,31 @@
         return total - count;
       }
 
-      let initialDepth = numberOfTeams * defaultPositions.length;
-      let initialMovesToUse = 10;
       function getNextPick(teamIndex, minimax) {
-        currentTeamIndex = teamIndex;
         let depth = getRemainingPickCount();
         let direction = draftResults[teamIndex].length % 2 === 0 ? 1 : -1;
-        let start = new Date();
-        let playerData = getSimplePick();
+        let startTime = new Date();
+        let endTime = new Date();
+        let playerData = getSimplePick(teamIndex);
         if(minimax) {
-          let gmpStartTime = 0;
-          let gmpEndTime = 0;
-          gmpStartTime = new Date();
           console.log("*************************************************************");
-          console.log("********** team " + (currentTeamIndex + 1) + " pick " + (draftResults[currentTeamIndex].length + 1) + " **********");
+          console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
           console.log("*************************************************************");
-          for(let i = 0; i < 20 && gmpEndTime - gmpStartTime < mimimaxMaxTime; i++) {
+          for(let i = 0; i < 20 && endTime - startTime < minimaxMaxTime; i++) {
             console.log("********** initial moves " + i);
-            getMinimaxPick(depth, -INFINITY, INFINITY, currentTeamIndex, depth, currentTeamIndex, direction, i);
-            gmpEndTime = new Date();
+            getMinimaxPick(depth, -INFINITY, INFINITY, teamIndex, depth, teamIndex, direction, i);
+            endTime = new Date();
           }
-          console.log("total gmp time = " + (gmpEndTime - gmpStartTime));
           playerData = bestMove;
         }
-        let end = new Date();
-        console.log("time", end - start);
-        autoCheckPlayer(currentTeamIndex, playerData);
+        endTime = new Date();
+        console.log("total time", endTime - startTime);
+        autoCheckPlayer(teamIndex, playerData);
         printDraftTotal();
       }
 
-      function startTest(teamIndex, direction, minimax, imtu) {
-        initialMovesToUse = imtu;
+      function startTest(teamIndex, direction, minimax) {
         getNextPick(teamIndex, minimax);
-        direction = direction;
         teamIndex = teamIndex + direction;
         if(teamIndex === numberOfTeams || teamIndex === -1) {
           direction = -direction;
@@ -638,7 +632,7 @@
         }
         if(draftResults[0].length < defaultPositions.length || draftResults[numberOfTeams - 1].length < defaultPositions.length) {
           setTimeout(() => {
-            startTest(teamIndex, direction, minimax, imtu);
+            startTest(teamIndex, direction, minimax);
           }, 100);
         }
       }
@@ -672,15 +666,17 @@
       document.write("</table>");
 
       document.write("<table>");
-      document.write("<tr class='heading'>");
-      document.write("<td>Player</td>");
-      document.write("<td>Postions</td>");
-      document.write("<td>Points</td>");
-      for(let i = 0; i < numberOfTeams; i++) {
-        document.write("<td>Team " + (i + 1) + "</td>");
-      }
-      document.write("</tr>");
       for(let i = 0; i < rawData.length; i++) {
+        if(i % 10 === 0) {
+          document.write("<tr class='heading'>");
+          document.write("<td>Player</td>");
+          document.write("<td>Postions</td>");
+          document.write("<td>Points</td>");
+          for(let i = 0; i < numberOfTeams; i++) {
+            document.write("<td>Team " + (i + 1) + "</td>");
+          }
+          document.write("</tr>");
+        }
         document.write("<tr>");
         document.write("<td>" + rawData[i].name + "</td>");
         document.write("<td>" + rawData[i].positions + "</td>");
@@ -694,40 +690,10 @@
 
       document.write("<table>");
       document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, false, 0)'>Start Simple Test</button></td>");
+      document.write("<td><button onclick='startTest(0, 1, false)'>Start Simple Simulation</button></td>");
       document.write("</tr>");
       document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 1)'>Start Minimax Test 1</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 2)'>Start Minimax Test 2</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 3)'>Start Minimax Test 3</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 4)'>Start Minimax Test 4</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 5)'>Start Minimax Test 5</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 6)'>Start Minimax Test 6</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 7)'>Start Minimax Test 7</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 8)'>Start Minimax Test 8</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 9)'>Start Minimax Test 9</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 10)'>Start Minimax Test 10</button></td>");
-      document.write("</tr>");
-      document.write("<tr>");
-      document.write("<td><button onclick='startTest(0, 1, true, 11)'>Start Minimax Test 11</button></td>");
+      document.write("<td><button onclick='startTest(0, 1, true)'>Start Minimax Simulation</button></td>");
       document.write("</tr>");
       document.write("</table>");
     </script>
