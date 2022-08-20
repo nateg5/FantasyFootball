@@ -362,22 +362,30 @@
       }
 
       function isLineupValid(lineup) {
-        let lineupPositionsMapStarters = {};
-        let lineupPositionsMapBench = {};
+        let lineupPositionsMapStarters = {
+          "QB": 0,
+          "RB": 0,
+          "WR": 0,
+          "TE": 0,
+          "FL": 0,
+          "K": 0,
+          "DEF": 0
+        };
+        let lineupPositionsMapBench = {
+          "QB": 0,
+          "RB": 0,
+          "WR": 0,
+          "TE": 0,
+          "FL": 0,
+          "K": 0,
+          "DEF": 0
+        };
         for(let i = 0; i < lineup.length; i++) {
           let position = lineup[i];
           if(i < numberOfStarters) {
-            if(lineupPositionsMapStarters[position]) {
-              lineupPositionsMapStarters[position]++;
-            } else {
-              lineupPositionsMapStarters[position] = 1;
-            }
+            lineupPositionsMapStarters[position]++;
           } else {
-            if(lineupPositionsMapBench[position]) {
-              lineupPositionsMapBench[position]++;
-            } else {
-              lineupPositionsMapBench[position] = 1;
-            }
+            lineupPositionsMapBench[position]++;
           }
         }
         for(key in lineupPositionsMapStarters) {
