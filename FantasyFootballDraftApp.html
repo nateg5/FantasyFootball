@@ -243,6 +243,15 @@
 
       let numberOfStarters = 9;
       let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
+      let possiblePositionsMap = [
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2
+      ];
       let possiblePositionsMapStarters = [
         1,
         2,
@@ -330,7 +339,7 @@
       }
 
       let missingPositionsMap = {};
-      function buildMissingPositions(teamPlayers, index, lineup, missingPositions) {
+      function buildMissingPositions(teamPlayers, index, lineup, missingPositions, posMapStarters, posMap) {
         let positionHash = "";
         if(index === 0) {
           positionHash = buildPositionHash(teamPlayers);
@@ -340,15 +349,48 @@
         }
 
         if(index < teamPlayers.length) {
+          let recursiveCallComplete = false;
           for(let i = 0; i < teamPlayers[index].positions.length; i++) {
-            lineup.push(teamPlayers[index].positions[i]);
-            missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions);
+            if(
+                posMapStarters[teamPlayers[index].positions[i]] > 0 ||
+                (
+                  posMapStarters.reduce((total, currentValue) => total + currentValue, 0) === 0 &&
+                  posMap[teamPlayers[index].positions[i]] > 0
+                )
+              ) {
+              let updateStarters = posMapStarters[teamPlayers[index].positions[i]] > 0;
+              if(updateStarters) {
+                posMapStarters[teamPlayers[index].positions[i]]--;
+              }
+              posMap[teamPlayers[index].positions[i]]--;
+              lineup.push(teamPlayers[index].positions[i]);
+              missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
+              recursiveCallComplete = true;
+              if(updateStarters) {
+                posMapStarters[teamPlayers[index].positions[i]]++;
+              }
+              posMap[teamPlayers[index].positions[i]]++;
+              lineup.pop();
+              break;
+            }
+          }
+          if(!recursiveCallComplete) {
+            let updateStarters = posMapStarters[teamPlayers[index].positions[0]] > 0;
+            if(updateStarters) {
+              posMapStarters[teamPlayers[index].positions[0]]--;
+            }
+            posMap[teamPlayers[index].positions[0]]--;
+            lineup.push(teamPlayers[index].positions[0]);
+            missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
+            recursiveCallComplete = true;
+            if(updateStarters) {
+              posMapStarters[teamPlayers[index].positions[0]]++;
+            }
+            posMap[teamPlayers[index].positions[0]]++;
             lineup.pop();
           }
         } else {
-          if(isLineupValid(lineup)) {
-            missingPositions.push(...getMissingPositions(lineup));
-          }
+          missingPositions.push(...getMissingPositions(lineup));
         }
 
         return reduceMissingPositions(index, missingPositions, positionHash);
@@ -360,46 +402,6 @@
           str += teamPlayers[i].positionsString;
         }
         return str;
-      }
-
-      function isLineupValid(lineup) {
-        let lineupPositionsMapStarters = [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ];
-        let lineupPositionsMapBench = [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ];
-        for(let i = 0; i < lineup.length; i++) {
-          let position = lineup[i];
-          if(i < numberOfStarters) {
-            lineupPositionsMapStarters[position]++;
-          } else {
-            lineupPositionsMapBench[position]++;
-          }
-        }
-        for(key in lineupPositionsMapStarters) {
-          if(lineupPositionsMapStarters[key] > possiblePositionsMapStarters[key]) {
-            return false;
-          }
-        }
-        for(key in lineupPositionsMapBench) {
-          if(lineupPositionsMapBench[key] > possiblePositionsMapBench[key]) {
-            return false;
-          }
-        }
-        return true;
       }
 
       function reduceMissingPositions(index, missingPositions, positionHash) {
@@ -447,7 +449,7 @@
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
         let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions);
+        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions, possiblePositionsMapStarters.slice(), possiblePositionsMap.slice());
         let simplePick = getNextAvailablePlayer(missingPositions);
         return simplePick;
       }
@@ -455,7 +457,7 @@
       function getAvailablePlayerMoves(teamIndex, maxMoves) {
         let teamPlayers = draftResults[teamIndex];
         let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions);
+        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions, possiblePositionsMapStarters.slice(), possiblePositionsMap.slice());
         return buildMoves(missingPositions, maxMoves);
       }
 
