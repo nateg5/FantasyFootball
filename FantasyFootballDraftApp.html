@@ -298,7 +298,7 @@
         for(let i = 0; i < draftResults[teamIndex].length; i++) {
           totalPoints += draftResults[teamIndex][i].points;
         }
-        return Math.floor(totalPoints);
+        return totalPoints;
       }
 
       function getCheckboxId(teamIndex, playerIndex) {
@@ -310,7 +310,7 @@
       }
 
       function updateTeamTotal(teamIndex) {
-        document.getElementById(getTeamId(teamIndex)).innerHTML = getTeamTotal(teamIndex);
+        document.getElementById(getTeamId(teamIndex)).innerHTML = Math.floor(getTeamTotal(teamIndex));
       }
 
       function updateDraftBoard(teamIndex, playerIndex) {
