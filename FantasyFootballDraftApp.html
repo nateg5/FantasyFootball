@@ -348,6 +348,21 @@
           }
         }
 
+        const recursiveLogic = (posIndex) => {
+          let updateStarters = posMapStarters[posIndex] > 0;
+          if(updateStarters) {
+            posMapStarters[posIndex]--;
+          }
+          posMap[posIndex]--;
+          lineup.push(posIndex);
+          missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
+          if(updateStarters) {
+            posMapStarters[posIndex]++;
+          }
+          posMap[posIndex]++;
+          lineup.pop();
+        };
+
         if(index < teamPlayers.length) {
           let recursiveCallComplete = false;
           for(let i = 0; i < teamPlayers[index].positions.length; i++) {
@@ -358,36 +373,13 @@
                   posMap[teamPlayers[index].positions[i]] > 0
                 )
               ) {
-              let updateStarters = posMapStarters[teamPlayers[index].positions[i]] > 0;
-              if(updateStarters) {
-                posMapStarters[teamPlayers[index].positions[i]]--;
-              }
-              posMap[teamPlayers[index].positions[i]]--;
-              lineup.push(teamPlayers[index].positions[i]);
-              missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
+              recursiveLogic(teamPlayers[index].positions[i]);
               recursiveCallComplete = true;
-              if(updateStarters) {
-                posMapStarters[teamPlayers[index].positions[i]]++;
-              }
-              posMap[teamPlayers[index].positions[i]]++;
-              lineup.pop();
               break;
             }
           }
           if(!recursiveCallComplete) {
-            let updateStarters = posMapStarters[teamPlayers[index].positions[0]] > 0;
-            if(updateStarters) {
-              posMapStarters[teamPlayers[index].positions[0]]--;
-            }
-            posMap[teamPlayers[index].positions[0]]--;
-            lineup.push(teamPlayers[index].positions[0]);
-            missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
-            recursiveCallComplete = true;
-            if(updateStarters) {
-              posMapStarters[teamPlayers[index].positions[0]]++;
-            }
-            posMap[teamPlayers[index].positions[0]]++;
-            lineup.pop();
+            recursiveLogic(teamPlayers[index].positions[0]);
           }
         } else {
           missingPositions.push(...getMissingPositions(lineup));
