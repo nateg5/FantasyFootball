@@ -795,17 +795,8 @@
       }
 
       function getRemainingPickCount() {
-        let total = numberOfTeams * numberOfStarters;
+        let total = numberOfTeams * defaultPositions.length;
         let count = 0;
-        for(let i = 0; i < numberOfTeams; i++) {
-          count += draftResults[i].length;
-        }
-        if(total - count > 0) {
-          return total - count;
-        }
-
-        total = numberOfTeams * defaultPositions.length;
-        count = 0;
         for(let i = 0; i < numberOfTeams; i++) {
           count += draftResults[i].length;
         }
@@ -822,7 +813,7 @@
           console.log("*************************************************************");
           console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
           console.log("*************************************************************");
-          for(let i = 0; i < 100 && endTime - startTime < minimaxMaxTime; i++) {
+          for(let i = 0; i < 20 && endTime - startTime < minimaxMaxTime; i++) {
             console.log("********** initial moves " + i);
             getMinimaxPick(depth, -INFINITY, INFINITY, teamIndex, depth, teamIndex, direction, i);
             endTime = new Date();
