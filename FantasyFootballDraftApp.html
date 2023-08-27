@@ -496,11 +496,7 @@
       function getTeamTotal(teamIndex) {
         let totalPoints = 0;
         for(let i = 0; i < draftResults[teamIndex].length; i++) {
-          if(i < numberOfStarters) {
-            totalPoints += (draftResults[teamIndex][i].points * .75);
-          } else {
-            totalPoints += (draftResults[teamIndex][i].points * .25);
-          }
+          totalPoints += draftResults[teamIndex][i].points;
         }
         return totalPoints;
       }
