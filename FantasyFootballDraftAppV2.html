@@ -538,92 +538,27 @@
         updateTeamTotal(teamIndex);
       }
 
-      let missingPositionsMap = {};
-      function buildMissingPositions(teamPlayers, index, lineup, missingPositions, posMapStarters, posMap) {
-        let positionHash = "";
-        if(index === 0) {
-          positionHash = buildPositionHash(teamPlayers);
-          if(missingPositionsMap[positionHash]) {
-            return missingPositionsMap[positionHash];
-          }
-        }
-
-        const recursiveLogic = (posIndex) => {
-          let updateStarters = posMapStarters[posIndex] > 0;
-          if(updateStarters) {
-            posMapStarters[posIndex]--;
-          }
-          posMap[posIndex]--;
-          lineup.push(posIndex);
-          missingPositions = buildMissingPositions(teamPlayers, index + 1, lineup, missingPositions, posMapStarters, posMap);
-          if(updateStarters) {
-            posMapStarters[posIndex]++;
-          }
-          posMap[posIndex]++;
-          lineup.pop();
-        };
-
-        if(index < teamPlayers.length) {
-          let recursiveCallComplete = false;
-          for(let i = 0; i < teamPlayers[index].positions.length; i++) {
-            if(
-                posMapStarters[teamPlayers[index].positions[i]] > 0 ||
-                (
-                  posMapStarters.reduce((total, currentValue) => total + currentValue, 0) === 0 &&
-                  posMap[teamPlayers[index].positions[i]] > 0
-                )
-              ) {
-              recursiveLogic(teamPlayers[index].positions[i]);
-              recursiveCallComplete = true;
-              break;
-            }
-          }
-          if(!recursiveCallComplete) {
-            recursiveLogic(teamPlayers[index].positions[0]);
-          }
-        } else {
-          missingPositions.push(...getMissingPositions(lineup));
-        }
-
-        return reduceMissingPositions(index, missingPositions, positionHash);
-      }
-
-      function buildPositionHash(teamPlayers) {
-        let str = "";
-        for(let i = 0; i < teamPlayers.length; i++) {
-          str += teamPlayers[i].positionsString;
-        }
-        return str;
-      }
-
-      function reduceMissingPositions(index, missingPositions, positionHash) {
-        if(index === 0) {
-          missingPositions = missingPositions.filter((x, i, a) => {return a.indexOf(x) === i;});
-          missingPositionsMap[positionHash] = missingPositions;
-        }
-
-        return missingPositions;
-      }
-
-      function getMissingPositions(lineup) {
-        let positions = defaultPositions.slice(0, numberOfStarters);
-        for(let i = 0; i < lineup.length; i++) {
-          let index = positions.indexOf(lineup[i]);
-          if(index >= 0) {
-            positions.splice(index, 1);
-          }
-        }
-        if(positions.length === 0) {
-          positions = defaultPositions.slice();
-          for(let i = 0; i < lineup.length; i++) {
-            let index = positions.indexOf(lineup[i]);
-            if(index >= 0) {
-              positions.splice(index, 1);
-            }
-          }
-        }
-        return positions;
-      }
+	  function buildMissingPositions(teamPlayers) {	  
+	    let tempPossiblePositionsMap = possiblePositionsMap.slice();
+		
+		for(let i = 0; i < teamPlayers.length; i++) {
+			for(let j = 0; j < teamPlayers[i].positions.length; j++) {
+			  if(tempPossiblePositionsMap[teamPlayers[i].positions[j]] > 0) {
+			    tempPossiblePositionsMap[teamPlayers[i].positions[j]]--;
+				break;
+			  }
+			}
+		}
+		
+		let tempMissingPositions = [];
+		for(let i = 0; i < tempPossiblePositionsMap.length; i++) {
+		  if(tempPossiblePositionsMap[i] > 0) {
+		    tempMissingPositions.push(i);
+		  }
+		}
+		
+		return tempMissingPositions;
+	  }
 
       function getNextAvailablePlayer(missingPositions) {
         for(let i = 0; i < rawData.length; i++) {
@@ -641,7 +576,7 @@
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
         let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions, possiblePositionsMapStarters.slice(), possiblePositionsMap.slice());
+        missingPositions = buildMissingPositions(teamPlayers);
         let simplePick = getNextAvailablePlayer(missingPositions);
         return simplePick;
       }
@@ -649,7 +584,7 @@
       function getAvailablePlayerMoves(teamIndex, maxMoves) {
         let teamPlayers = draftResults[teamIndex];
         let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers, 0, [], missingPositions, possiblePositionsMapStarters.slice(), possiblePositionsMap.slice());
+        missingPositions = buildMissingPositions(teamPlayers);
         return buildMoves(missingPositions, maxMoves);
       }
 
