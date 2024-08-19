@@ -718,11 +718,8 @@
         let teamTotals = [];
         let total = 0;
         for(let i = 0; i < numberOfTeams; i++) {
-          let teamTotal = 0;
-          for(let j = 0; j < draftResults[i].length; j++) {
-            teamTotal += draftResults[i][j].points;
-            total += draftResults[i][j].points;
-          }
+          let teamTotal = getTeamTotal(i);
+		  total += teamTotal;
           teamTotals.push(teamTotal);
         }
         console.log("stddev", stddev(teamTotals));
