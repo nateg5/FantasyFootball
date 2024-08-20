@@ -494,11 +494,23 @@
       }
 
       function getTeamTotal(teamIndex) {
-        let totalPoints = 0;
-        for(let i = 0; i < draftResults[teamIndex].length; i++) {
-          totalPoints += draftResults[teamIndex][i].points;
-        }
-        return totalPoints;
+		let totalPoints = 0;
+		let teamPlayers = draftResults[teamIndex].slice();
+		teamPlayers.sort((a, b) => b.points - a.points);
+		for(let i = 0; i < defaultPositions.length; i++) {
+		  for(let j = 0; j < teamPlayers.length; j++) {
+		    if(teamPlayers[j].positions.indexOf(defaultPositions[i]) >= 0) {
+			  if(i < numberOfStarters) {
+			    totalPoints += teamPlayers[j].points * .75;
+			  } else {
+			    totalPoints += teamPlayers[j].points * .25;
+			  }
+			  teamPlayers.splice(j, 1);
+			  break;
+			}
+		  }
+		}
+		return totalPoints;
       }
 
       function getCheckboxId(teamIndex, playerIndex) {
