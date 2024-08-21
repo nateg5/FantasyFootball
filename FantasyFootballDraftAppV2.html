@@ -291,6 +291,7 @@
       }
       let numberOfTeams = params.numberOfTeams || 10;
       let minimaxMaxTime = params.minimaxMaxTime || 100;
+	  let maxMovesToUse = params.maxMovesToUse || 100;
 
       let numberOfStarters = 9;
       let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
@@ -401,26 +402,39 @@
         updateTeamTotal(teamIndex);
       }
 
-	  function buildMissingPositions(teamPlayers) {	  
-	    let tempPossiblePositionsMap = possiblePositionsMap.slice();
-		
-		for(let i = 0; i < teamPlayers.length; i++) {
-			for(let j = 0; j < teamPlayers[i].positions.length; j++) {
-			  if(tempPossiblePositionsMap[teamPlayers[i].positions[j]] > 0) {
-			    tempPossiblePositionsMap[teamPlayers[i].positions[j]]--;
-				break;
-			  }
+	  function buildMissingPositions(teamPlayersIn) {
+		let missingPositions = [];
+		let missingPositionsStarter = [];
+		let teamPlayers = teamPlayersIn.slice();
+		teamPlayers.sort((a, b) => b.points - a.points);
+		for(let i = 0; i < defaultPositions.length; i++) {
+		  let found = false;
+		  for(let j = 0; j < teamPlayers.length; j++) {
+		    if(teamPlayers[j].positions.indexOf(defaultPositions[i]) >= 0) {
+			  teamPlayers.splice(j, 1);
+			  found = true;
+			  break;
 			}
-		}
-		
-		let tempMissingPositions = [];
-		for(let i = 0; i < tempPossiblePositionsMap.length; i++) {
-		  if(tempPossiblePositionsMap[i] > 0) {
-		    tempMissingPositions.push(i);
+		  }
+		  if(!found) {
+			if(i < numberOfStarters) {
+			  missingPositions.push(defaultPositions[i]);
+			  missingPositionsStarter.push(true);
+			} else {
+			  missingPositions.push(defaultPositions[i]);
+			  missingPositionsStarter.push(false);
+			}
 		  }
 		}
-		
-		return tempMissingPositions;
+		for(let i = 0; i < missingPositions.length; i++) {
+		  for(let j = missingPositions.length; j > i; j--) {
+		    if(missingPositions[i] === missingPositions[j]) {
+			  missingPositions.splice(j, 1);
+			  missingPositionsStarter.splice(j, 1);
+			}
+		  }
+		}
+		return {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
 	  }
 
       function getNextAvailablePlayer(missingPositions) {
@@ -438,21 +452,20 @@
 
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
-        let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers);
+        let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
         let simplePick = getNextAvailablePlayer(missingPositions);
         return simplePick;
       }
 
       function getAvailablePlayerMoves(teamIndex, maxMoves) {
         let teamPlayers = draftResults[teamIndex];
-        let missingPositions = [];
-        missingPositions = buildMissingPositions(teamPlayers);
-        return buildMoves(missingPositions, maxMoves);
+        let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
+        return buildMoves(missingPositions, missingPositionsStarter, maxMoves);
       }
 
-      function buildMoves(missingPositions, maxMoves) {
+      function buildMoves(missingPositions, missingPositionsStarter, maxMoves) {
         let moves = [];
+		let movesWithStarter = [];
         for(let i = 0; i < missingPositions.length; i++) {
           let positionsMap = rawDataPositionsMap[missingPositions[i]];
           for(let j = 0; j < positionsMap.length; j++) {
@@ -460,6 +473,7 @@
             if(playerData.available === true) {
               if(moves.indexOf(playerData) < 0) {
                 moves.push(playerData);
+				movesWithStarter.push({playerData: playerData, starter: missingPositionsStarter[i]});
                 break;
               }
               break;
@@ -467,11 +481,22 @@
           }
         }
 
-        moves.sort((a, b) => {
-          return b.points - a.points;
+        movesWithStarter.sort((a, b) => {
+		  let aPoints, bPoints;
+		  if(a.starter) {
+		    aPoints = ((a.playerData.points / 17) * 13);
+		  } else {
+		    aPoints = ((a.playerData.points / 17) * 2);
+		  }
+		  if(b.starter) {
+		    bPoints = ((b.playerData.points / 17) * 13);
+		  } else {
+		    bPoints = ((b.playerData.points / 17) * 2);
+		  }
+          return bPoints - aPoints;
         });
 
-        moves = moves.slice(0, maxMoves);
+        moves = movesWithStarter.slice(0, maxMoves).map((item) => item.playerData);
 
         return moves;
       }
@@ -493,11 +518,12 @@
 
       let INFINITY = 1000000;
       let bestMove = "";
+	  let bestMoveIndex = -1;
       function getMinimaxPick(depth, alpha, beta, teamIndex, maxDepth, maxTeamIndex, direction, movesToUse) {
         let moves = [];
 
         if(depth !== 0) {
-          moves = getAvailablePlayerMoves(teamIndex, movesToUse > 1 ? movesToUse : 1);
+          moves = getAvailablePlayerMoves(teamIndex, movesToUse > maxMovesToUse ? maxMovesToUse : movesToUse > 1 ? movesToUse : 1);
         }
 
         if(depth === 0 || moves.length === 0) {
@@ -525,6 +551,11 @@
               value = minimaxValue;
               if(depth === maxDepth) {
                 bestMove = moves[i];
+				if(moves.length >= maxMovesToUse || moves.length >= 6) {
+				  bestMoveIndex = i;
+				} else {
+				  bestMoveIndex = -1;
+				}
               }
             }
             undraftPlayer(teamIndex, draftResults[teamIndex].length - 1);
@@ -587,6 +618,14 @@
         }
         console.log("stddev", stddev(teamTotals));
         console.log("draft total", total);
+		console.log("bestMoveIndexArray", bestMoveIndexArray);
+		console.log("0 count", bestMoveIndexArray.filter((item) => item == 0).length);
+		console.log("1 count", bestMoveIndexArray.filter((item) => item == 1).length);
+		console.log("2 count", bestMoveIndexArray.filter((item) => item == 2).length);
+		console.log("3 count", bestMoveIndexArray.filter((item) => item == 3).length);
+		console.log("4 count", bestMoveIndexArray.filter((item) => item == 4).length);
+		console.log("5 count", bestMoveIndexArray.filter((item) => item == 5).length);
+		console.log("6 count", bestMoveIndexArray.filter((item) => item == 6).length);
       }
 
       function getRemainingPickCount() {
@@ -598,6 +637,7 @@
         return total - count;
       }
 
+      let bestMoveIndexArray = [];
       function getNextPick(teamIndex, minimax) {
         let depth = getRemainingPickCount();
         let direction = draftResults[teamIndex].length % 2 === 0 ? 1 : -1;
@@ -614,6 +654,9 @@
             endTime = new Date();
           }
           playerData = bestMove;
+		  if(bestMoveIndex >= 0) {
+		    bestMoveIndexArray.push(bestMoveIndex);
+		  }
         }
         endTime = new Date();
         console.log("total time", endTime - startTime);
