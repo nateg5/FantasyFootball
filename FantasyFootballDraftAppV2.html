@@ -406,7 +406,13 @@
 		let missingPositions = [];
 		let missingPositionsStarter = [];
 		let teamPlayers = teamPlayersIn.slice();
-		teamPlayers.sort((a, b) => b.points - a.points);
+		for(let i = 1; i < teamPlayers.length; i++) {
+		  for(let j = i; j > 0 && teamPlayers[j-1].points < teamPlayers[j].points; j--) {
+		    let tempPlayer = teamPlayers[j-1];
+			teamPlayers[j-1] = teamPlayers[j];
+			teamPlayers[j] = tempPlayer;
+		  }
+		}
 		for(let i = 0; i < defaultPositions.length; i++) {
 		  let found = false;
 		  for(let j = 0; j < teamPlayers.length; j++) {
@@ -480,21 +486,31 @@
             }
           }
         }
-
-        movesWithStarter.sort((a, b) => {
-		  let aPoints, bPoints;
-		  if(a.starter) {
-		    aPoints = ((a.playerData.points / 17) * 13);
-		  } else {
-		    aPoints = ((a.playerData.points / 17) * 2);
-		  }
-		  if(b.starter) {
-		    bPoints = ((b.playerData.points / 17) * 13);
-		  } else {
-		    bPoints = ((b.playerData.points / 17) * 2);
-		  }
-          return bPoints - aPoints;
-        });
+		
+		for(let i = 1; i < movesWithStarter.length; i++) {
+		  for(let j = i; j > 0; j--) {
+		    let a = movesWithStarter[j-1];
+			let b = movesWithStarter[j];
+		    let aPoints, bPoints;
+		    if(a.starter) {
+		      aPoints = ((a.playerData.points / 17) * 13);
+		    } else {
+		      aPoints = ((a.playerData.points / 17) * 2);
+		    }
+		    if(b.starter) {
+		      bPoints = ((b.playerData.points / 17) * 13);
+		    } else {
+		      bPoints = ((b.playerData.points / 17) * 2);
+		    }
+			if(aPoints < bPoints) {
+			  let tempMove = movesWithStarter[j-1];
+			  movesWithStarter[j-1] = movesWithStarter[j];
+			  movesWithStarter[j] = tempMove;
+			} else {
+			  break;
+			}
+		  } 
+		}
 
         moves = movesWithStarter.slice(0, maxMoves).map((item) => item.playerData);
 
