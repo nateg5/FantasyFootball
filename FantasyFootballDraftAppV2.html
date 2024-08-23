@@ -674,7 +674,7 @@
           console.log("*************************************************************");
           console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
           console.log("*************************************************************");
-          for(let i = 0; i < 100 && endTime - startTime < minimaxMaxTime; i++) {
+          for(let i = 6; i < 100 && endTime - startTime < minimaxMaxTime; i++) {
             console.log("********** initial moves " + i);
             getMinimaxPick(depth, -INFINITY, INFINITY, teamIndex, depth, teamIndex, direction, i);
             endTime = new Date();
