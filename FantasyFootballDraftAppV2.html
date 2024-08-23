@@ -406,7 +406,7 @@
 	  function buildMissingPositions(teamPlayersIn) {
 		let cacheKey = "";
 		for(let i = 0; i < teamPlayersIn.length; i++) {
-		  cacheKey += teamPlayersIn[i].name;
+		  cacheKey += teamPlayersIn[i].name.substring(7, 10);
 		}
 		if(missingPositionsCache[cacheKey]) {
 		  return missingPositionsCache[cacheKey];
