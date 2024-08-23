@@ -402,7 +402,15 @@
         updateTeamTotal(teamIndex);
       }
 
+      let missingPositionsCache = {};
 	  function buildMissingPositions(teamPlayersIn) {
+		let cacheKey = "";
+		for(let i = 0; i < teamPlayersIn.length; i++) {
+		  cacheKey += teamPlayersIn[i].name;
+		}
+		if(missingPositionsCache[cacheKey]) {
+		  return missingPositionsCache[cacheKey];
+		}
 		let missingPositions = [];
 		let missingPositionsStarter = [];
 		let teamPlayers = teamPlayersIn.slice();
@@ -440,7 +448,9 @@
 			}
 		  }
 		}
-		return {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
+		let retVal = {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
+		missingPositionsCache[cacheKey] = retVal;
+		return retVal;
 	  }
 
       function getNextAvailablePlayer(missingPositions) {
