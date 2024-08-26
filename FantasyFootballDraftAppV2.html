@@ -281,7 +281,6 @@
         [],
         []
       ];
-      console.log(rawData);
 
       let searchArray = location.search.substring(1).split("&");
       let params = {};
@@ -324,8 +323,17 @@
       ];
       let bestAvailablePlayerMap = [];
       let draftResults = [];
+	  
+	  let alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	  let codes = [];
+	  for(let i = 0; i < alphabet.length; i++) {
+	    for(let j = 0; j < alphabet.length; j++) {
+		  codes.push(alphabet[i] + alphabet[j]);
+		}
+	  }
 
       for(let i = 0; i < rawData.length; i++) {
+	    rawData[i].code = codes[i];
         rawData[i].positionsString = "" + rawData[i].positions;
         rawData[i].nextPlayer = {};
         for(let j = 0; j < rawData[i].positions.length; j++) {
@@ -338,6 +346,7 @@
           }
         }
       }
+      console.log(rawData);
       console.log(rawDataPositionsMap);
       console.log(bestAvailablePlayerMap);
 
@@ -406,7 +415,7 @@
 	  function buildMissingPositions(teamPlayersIn) {
 		let cacheKey = "";
 		for(let i = 0; i < teamPlayersIn.length; i++) {
-		  cacheKey += teamPlayersIn[i].name.substring(7, 10);
+		  cacheKey += teamPlayersIn[i].code;
 		}
 		if(missingPositionsCache[cacheKey]) {
 		  return missingPositionsCache[cacheKey];
