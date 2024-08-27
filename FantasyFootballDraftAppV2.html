@@ -462,24 +462,10 @@
 		return retVal;
 	  }
 
-      function getNextAvailablePlayer(missingPositions) {
-        for(let i = 0; i < rawData.length; i++) {
-          if(rawData[i].available) {
-            let iterations2 = rawData[i].positions.length;
-            for(let j = 0; j < iterations2; j++) {
-              if(missingPositions.indexOf(rawData[i].positions[j]) >= 0) {
-                return rawData[i];
-              }
-            }
-          }
-        }
-      }
-
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
         let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
-        let simplePick = getNextAvailablePlayer(missingPositions);
-        return simplePick;
+		return buildMoves(missingPositions, missingPositionsStarter, maxMovesToUse)[0];
       }
 
       function getAvailablePlayerMoves(teamIndex, maxMoves) {
