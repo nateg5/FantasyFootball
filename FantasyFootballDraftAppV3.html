@@ -1,0 +1,766 @@
+<html>
+  <head>
+    <style>
+      table {
+        border-collapse: collapse;
+        float: left;
+        margin: 10px;
+      }
+      table td {
+        border: 1px solid #888;
+        padding: 10px;
+      }
+      .heading {
+        font-weight: bold;
+        background-color: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      let QB = 0, RB = 1, WR = 2, TE = 3, FL = 4, K = 5, DEF = 6;
+      let rawData = [
+      {name: "Patrick MahomesKC", positions: [QB], points: 434.92, available: true},
+{name: "Josh AllenBuf", positions: [QB], points: 426.2, available: true},
+{name: "Jalen HurtsPhi", positions: [QB], points: 409.25, available: true},
+{name: "Lamar JacksonBal", positions: [QB], points: 405.31, available: true},
+{name: "C.J. StroudHou", positions: [QB], points: 398.74, available: true},
+{name: "Joe BurrowCin", positions: [QB], points: 386.64, available: true},
+{name: "Dak PrescottDal", positions: [QB], points: 378.95, available: true},
+{name: "Anthony RichardsonInd", positions: [QB], points: 368.81, available: true},
+{name: "Brock PurdySF", positions: [QB], points: 366.18, available: true},
+{name: "Jordan LoveGB", positions: [QB], points: 357.1, available: true},
+{name: "Jared GoffDet", positions: [QB], points: 355.93, available: true},
+{name: "Christian McCaffreySF", positions: [RB,FL], points: 353.1, available: true},
+{name: "Tua TagovailoaMia", positions: [QB], points: 347.73, available: true},
+{name: "Trevor LawrenceJax", positions: [QB], points: 340.61, available: true},
+{name: "Matthew StaffordLAR", positions: [QB], points: 340.46, available: true},
+{name: "Kyler MurrayAri", positions: [QB], points: 337.98, available: true},
+{name: "Caleb WilliamsChi", positions: [QB], points: 336.87, available: true},
+{name: "Justin HerbertLAC", positions: [QB], points: 334.34, available: true},
+{name: "Tyreek HillMia", positions: [WR,FL], points: 332.98, available: true},
+{name: "CeeDee LambDal", positions: [WR,FL], points: 329.69, available: true},
+{name: "Aaron RodgersNYJ", positions: [QB], points: 326.38, available: true},
+{name: "Jayden DanielsWas", positions: [QB], points: 314.53, available: true},
+{name: "Kirk CousinsAtl", positions: [QB], points: 312.39, available: true},
+{name: "Deshaun WatsonCle", positions: [QB], points: 309.84, available: true},
+{name: "Geno SmithSea", positions: [QB], points: 304.46, available: true},
+{name: "Baker MayfieldTB", positions: [QB], points: 303.27, available: true},
+{name: "Amon-Ra St. BrownDet", positions: [WR,FL], points: 298.35, available: true},
+{name: "Ja'Marr ChaseCin", positions: [WR,FL], points: 298.2, available: true},
+{name: "Will LevisTen", positions: [QB], points: 296.86, available: true},
+{name: "Justin JeffersonMin", positions: [WR,FL], points: 288.28, available: true},
+{name: "Breece HallNYJ", positions: [RB,FL], points: 287.52, available: true},
+{name: "A.J. BrownPhi", positions: [WR,FL], points: 281.53, available: true},
+{name: "Garrett WilsonNYJ", positions: [WR,FL], points: 278.86, available: true},
+{name: "Puka NacuaLAR", positions: [WR,FL], points: 272.41, available: true},
+{name: "Russell WilsonPit", positions: [QB], points: 268.46, available: true},
+{name: "Drake MayeNE", positions: [QB], points: 267.5, available: true},
+{name: "Derek CarrNO", positions: [QB], points: 266.91, available: true},
+{name: "Gardner Minshew IILV", positions: [QB], points: 261.2, available: true},
+{name: "Bijan RobinsonAtl", positions: [RB,FL], points: 257.71, available: true},
+{name: "Bryce YoungCar", positions: [QB], points: 256.62, available: true},
+{name: "Jahmyr GibbsDet", positions: [RB,FL], points: 255.69, available: true},
+{name: "Saquon BarkleyPhi", positions: [RB,FL], points: 251.01, available: true},
+{name: "Daniel JonesNYG", positions: [QB], points: 248.71, available: true},
+{name: "Jonathan TaylorInd", positions: [RB,FL], points: 243, available: true},
+{name: "Drake LondonAtl", positions: [WR,FL], points: 242.54, available: true},
+{name: "Cooper KuppLAR", positions: [WR,FL], points: 242.11, available: true},
+{name: "Nico CollinsHou", positions: [WR,FL], points: 240.91, available: true},
+{name: "Brandon AiyukSF", positions: [WR,FL], points: 240.53, available: true},
+{name: "Travis KelceKC", positions: [TE,FL], points: 238.34, available: true},
+{name: "Deebo Samuel Sr.SF", positions: [WR,FL], points: 237.91, available: true},
+{name: "Isiah PachecoKC", positions: [RB,FL], points: 236.4, available: true},
+{name: "Chris OlaveNO", positions: [WR,FL], points: 235.59, available: true},
+{name: "Sam LaPortaDet", positions: [TE,FL], points: 235.42, available: true},
+{name: "Jaylen WaddleMia", positions: [WR,FL], points: 235.21, available: true},
+{name: "Marvin Harrison Jr.Ari", positions: [WR,FL], points: 234.5, available: true},
+{name: "Rashee RiceKC", positions: [WR,FL], points: 234.23, available: true},
+{name: "Kyren WilliamsLAR", positions: [RB,FL], points: 233.39, available: true},
+{name: "DeVonta SmithPhi", positions: [WR,FL], points: 231.06, available: true},
+{name: "Davante AdamsLV", positions: [WR,FL], points: 229.06, available: true},
+{name: "Josh JacobsGB", positions: [RB,FL], points: 228.13, available: true},
+{name: "Tee HigginsCin", positions: [WR,FL], points: 227.76, available: true},
+{name: "Derrick HenryBal", positions: [RB,FL], points: 226.09, available: true},
+{name: "Stefon DiggsHou", positions: [WR,FL], points: 225.59, available: true},
+{name: "Amari CooperCle", positions: [WR,FL], points: 225.08, available: true},
+{name: "Mike EvansTB", positions: [WR,FL], points: 224.74, available: true},
+{name: "DJ MooreChi", positions: [WR,FL], points: 223.95, available: true},
+{name: "Bo NixDen", positions: [QB], points: 223.81, available: true},
+{name: "Michael Pittman Jr.Ind", positions: [WR,FL], points: 222.96, available: true},
+{name: "DK MetcalfSea", positions: [WR,FL], points: 222.53, available: true},
+{name: "Travis Etienne Jr.Jax", positions: [RB,FL], points: 221.47, available: true},
+{name: "Rachaad WhiteTB", positions: [RB,FL], points: 220.21, available: true},
+{name: "Christian KirkJax", positions: [WR,FL], points: 220.2, available: true},
+{name: "Zay FlowersBal", positions: [WR,FL], points: 219.66, available: true},
+{name: "Tank DellHou", positions: [WR,FL], points: 218.52, available: true},
+{name: "Keenan AllenChi", positions: [WR,FL], points: 213.93, available: true},
+{name: "Justin TuckerBal", positions: [K], points: 213.45, available: true},
+{name: "Chris GodwinTB", positions: [WR,FL], points: 212.48, available: true},
+{name: "De'Von AchaneMia", positions: [RB,FL], points: 211.17, available: true},
+{name: "James CookBuf", positions: [RB,FL], points: 209.57, available: true},
+{name: "Jordan AddisonMin", positions: [WR,FL], points: 209.29, available: true},
+{name: "Harrison ButkerKC", positions: [K], points: 208.65, available: true},
+{name: "Jayden ReedGB", positions: [WR,FL], points: 206.98, available: true},
+{name: "George PickensPit", positions: [WR,FL], points: 206.21, available: true},
+{name: "Malik NabersNYG", positions: [WR,FL], points: 205.85, available: true},
+{name: "Evan McPhersonCin", positions: [K], points: 205.21, available: true},
+{name: "Rome OdunzeChi", positions: [WR,FL], points: 203.55, available: true},
+{name: "Brandon AubreyDal", positions: [K], points: 202.38, available: true},
+{name: "Mark AndrewsBal", positions: [TE,FL], points: 200.36, available: true},
+{name: "George KittleSF", positions: [TE,FL], points: 199.09, available: true},
+{name: "Terry McLaurinWas", positions: [WR,FL], points: 198.39, available: true},
+{name: "Diontae JohnsonCar", positions: [WR,FL], points: 197.88, available: true},
+{name: "Calvin RidleyTen", positions: [WR,FL], points: 196.83, available: true},
+{name: "Jake MoodySF", positions: [K], points: 196.54, available: true},
+{name: "Younghoe KooAtl", positions: [K], points: 196.3, available: true},
+{name: "Joe MixonHou", positions: [RB,FL], points: 196.05, available: true},
+{name: "Alvin KamaraNO", positions: [RB,FL], points: 195.98, available: true},
+{name: "Dalton KincaidBuf", positions: [TE,FL], points: 194.39, available: true},
+{name: "Aaron JonesMin", positions: [RB,FL], points: 194.11, available: true},
+{name: "Kenneth Walker IIISea", positions: [RB,FL], points: 191.16, available: true},
+{name: "James ConnerAri", positions: [RB,FL], points: 190.99, available: true},
+{name: "Ka'imi FairbairnHou", positions: [K], points: 190.75, available: true},
+{name: "Greg ZuerleinNYJ", positions: [K], points: 190.22, available: true},
+{name: "David MontgomeryDet", positions: [RB,FL], points: 190.08, available: true},
+{name: "Trey McBrideAri", positions: [TE,FL], points: 189.72, available: true},
+{name: "Tyler BassBuf", positions: [K], points: 188.53, available: true},
+{name: "Jaxon Smith-NjigbaSea", positions: [WR,FL], points: 187.18, available: true},
+{name: "Xavier WorthyKC", positions: [WR,FL], points: 186.95, available: true},
+{name: "Joshua PalmerLAC", positions: [WR,FL], points: 186.82, available: true},
+{name: "Jason SandersMia", positions: [K], points: 185.76, available: true},
+{name: "Tyler LockettSea", positions: [WR,FL], points: 185.4, available: true},
+{name: "D'Andre SwiftChi", positions: [RB,FL], points: 185.02, available: true},
+{name: "Cameron DickerLAC", positions: [K], points: 183.61, available: true},
+{name: "Devin SingletaryNYG", positions: [RB,FL], points: 183.44, available: true},
+{name: "Dustin HopkinsCle", positions: [K], points: 181.63, available: true},
+{name: "Brayden NarvesonGB", positions: [K], points: 180.69, available: true},
+{name: "Najee HarrisPit", positions: [RB,FL], points: 179.43, available: true},
+{name: "Kyle PittsAtl", positions: [TE,FL], points: 179.29, available: true},
+{name: "DeAndre HopkinsTen", positions: [WR,FL], points: 178.95, available: true},
+{name: "Matt GayInd", positions: [K], points: 178.58, available: true},
+{name: "Jake ElliottPhi", positions: [K], points: 178.42, available: true},
+{name: "Cairo SantosChi", positions: [K], points: 177.36, available: true},
+{name: "Hollywood BrownKC", positions: [WR,FL], points: 176.78, available: true},
+{name: "Daniel CarlsonLV", positions: [K], points: 176.62, available: true},
+{name: "Christian WatsonGB", positions: [WR,FL], points: 175.78, available: true},
+{name: "Cade YorkWas", positions: [K], points: 175.33, available: true},
+{name: "Zamir WhiteLV", positions: [RB,FL], points: 175.26, available: true},
+{name: "Matt PraterAri", positions: [K], points: 174.45, available: true},
+{name: "Chase McLaughlinTB", positions: [K], points: 174.23, available: true},
+{name: "Rhamondre StevensonNE", positions: [RB,FL], points: 173.97, available: true},
+{name: "Jason MyersSea", positions: [K], points: 173.23, available: true},
+{name: "Joshua KartyLAR", positions: [K], points: 171.85, available: true},
+{name: "Jake BatesDet", positions: [K], points: 171.79, available: true},
+{name: "Chris BoswellPit", positions: [K], points: 171.44, available: true},
+{name: "Blake GrupeNO", positions: [K], points: 170.75, available: true},
+{name: "Rashid ShaheedNO", positions: [WR,FL], points: 170.58, available: true},
+{name: "Ezekiel ElliottDal", positions: [RB,FL], points: 169.81, available: true},
+{name: "Jerry JeudyCle", positions: [WR,FL], points: 169.81, available: true},
+{name: "Romeo DoubsGB", positions: [WR,FL], points: 169.35, available: true},
+{name: "Zack MossCin", positions: [RB,FL], points: 169.12, available: true},
+{name: "Raheem MostertMia", positions: [RB,FL], points: 168.54, available: true},
+{name: "Ladd McConkeyLAC", positions: [WR,FL], points: 167.9, available: true},
+{name: "Tony PollardTen", positions: [RB,FL], points: 167.2, available: true},
+{name: "Brian Thomas Jr.Jax", positions: [WR,FL], points: 166.98, available: true},
+{name: "Tyjae SpearsTen", positions: [RB,FL], points: 166.84, available: true},
+{name: "Jaylen WarrenPit", positions: [RB,FL], points: 166.53, available: true},
+{name: "Javonte WilliamsDen", positions: [RB,FL], points: 165.61, available: true},
+{name: "Khalil ShakirBuf", positions: [WR,FL], points: 164.6, available: true},
+{name: "Jake FergusonDal", positions: [TE,FL], points: 164.07, available: true},
+{name: "Evan EngramJax", positions: [TE,FL], points: 161.68, available: true},
+{name: "Austin EkelerWas", positions: [RB,FL], points: 160.85, available: true},
+{name: "Chase BrownCin", positions: [RB,FL], points: 160.8, available: true},
+{name: "Gus EdwardsLAC", positions: [RB,FL], points: 159.91, available: true},
+{name: "Mike WilliamsNYJ", positions: [WR,FL], points: 159.01, available: true},
+{name: "Courtland SuttonDen", positions: [WR,FL], points: 158.68, available: true},
+{name: "Keon ColemanBuf", positions: [WR,FL], points: 158.43, available: true},
+{name: "Jalen McMillanTB", positions: [WR,FL], points: 158.42, available: true},
+{name: "Dontayvion WicksGB", positions: [WR,FL], points: 158.2, available: true},
+{name: "Jameson WilliamsDet", positions: [WR,FL], points: 157.94, available: true},
+{name: "David NjokuCle", positions: [TE,FL], points: 157.64, available: true},
+{name: "DeMario DouglasNE", positions: [WR,FL], points: 156.53, available: true},
+{name: "Curtis SamuelBuf", positions: [WR,FL], points: 156.16, available: true},
+{name: "Gabe DavisJax", positions: [WR,FL], points: 156, available: true},
+{name: "Brandin CooksDal", positions: [WR,FL], points: 155.57, available: true},
+{name: "Dallas GoedertPhi", positions: [TE,FL], points: 153.34, available: true},
+{name: "Dalton SchultzHou", positions: [TE,FL], points: 151.46, available: true},
+{name: "Josh DownsInd", positions: [WR,FL], points: 150.63, available: true},
+{name: "Nick ChubbCle", positions: [RB,FL], points: 150.5, available: true},
+{name: "Jakobi MeyersLV", positions: [WR,FL], points: 149.58, available: true},
+{name: "Jonathon BrooksCar", positions: [RB,FL], points: 148.95, available: true},
+{name: "Jerome FordCle", positions: [RB,FL], points: 146.19, available: true},
+{name: "Malachi CorleyNYJ", positions: [WR,FL], points: 145.5, available: true},
+{name: "Ricky PearsallSF", positions: [WR,FL], points: 144.69, available: true},
+{name: "Xavier LegetteCar", positions: [WR,FL], points: 142.72, available: true},
+{name: "Adonai MitchellInd", positions: [WR,FL], points: 142, available: true},
+{name: "Zach CharbonnetSea", positions: [RB,FL], points: 140.29, available: true},
+{name: "Brian Robinson Jr.Was", positions: [RB,FL], points: 140.25, available: true},
+{name: "Wan'Dale RobinsonNYG", positions: [WR,FL], points: 138.49, available: true},
+{name: "Brock BowersLV", positions: [TE,FL], points: 137.9, available: true},
+{name: "T.J. HockensonMin", positions: [TE,FL], points: 137.83, available: true},
+{name: "Roman WilsonPit", positions: [WR,FL], points: 136.66, available: true},
+{name: "Cole KmetChi", positions: [TE,FL], points: 135.9, available: true},
+{name: "Adam ThielenCar", positions: [WR,FL], points: 134.16, available: true},
+{name: "Pat FreiermuthPit", positions: [TE,FL], points: 133.94, available: true},
+{name: "Ja'Lynn PolkNE", positions: [WR,FL], points: 133.8, available: true},
+{name: "Michael WilsonAri", positions: [WR,FL], points: 133.54, available: true},
+{name: "Darnell MooneyAtl", positions: [WR,FL], points: 133.16, available: true},
+{name: "San FranciscoSF", positions: [DEF], points: 128.58, available: true},
+{name: "Quentin JohnstonLAC", positions: [WR,FL], points: 128.28, available: true},
+{name: "Kansas CityKC", positions: [DEF], points: 127.06, available: true},
+{name: "BaltimoreBal", positions: [DEF], points: 126.7, available: true},
+{name: "Greg DortchAri", positions: [WR,FL], points: 126.22, available: true},
+{name: "Rashod BatemanBal", positions: [WR,FL], points: 126.2, available: true},
+{name: "Troy FranklinDen", positions: [WR,FL], points: 125.9, available: true},
+{name: "DallasDal", positions: [DEF], points: 125.22, available: true},
+{name: "New YorkNYJ", positions: [DEF], points: 124.68, available: true},
+{name: "Marvin Mims Jr.Den", positions: [WR,FL], points: 124.66, available: true},
+{name: "Taysom HillNO", positions: [QB,TE,FL], points: 122.99, available: true},
+{name: "Jermaine BurtonCin", positions: [WR,FL], points: 120.62, available: true},
+{name: "Jauan JenningsSF", positions: [WR,FL], points: 115.07, available: true},
+{name: "Chuba HubbardCar", positions: [RB,FL], points: 114.85, available: true},
+{name: "ClevelandCle", positions: [DEF], points: 114.84, available: true},
+{name: "Trey BensonAri", positions: [RB,FL], points: 113.62, available: true},
+{name: "Blake CorumLAR", positions: [RB,FL], points: 113.15, available: true},
+{name: "Devontez WalkerBal", positions: [WR,FL], points: 113.07, available: true},
+{name: "Cade OttonTB", positions: [TE,FL], points: 112.13, available: true},
+{name: "Tyler BoydTen", positions: [WR,FL], points: 111.36, available: true},
+{name: "DetroitDet", positions: [DEF], points: 110.59, available: true},
+{name: "MiamiMia", positions: [DEF], points: 110.31, available: true},
+{name: "PhiladelphiaPhi", positions: [DEF], points: 109.71, available: true},
+{name: "PittsburghPit", positions: [DEF], points: 109.48, available: true},
+{name: "BuffaloBuf", positions: [DEF], points: 108.49, available: true},
+{name: "HoustonHou", positions: [DEF], points: 108.36, available: true},
+{name: "Luke MusgraveGB", positions: [TE,FL], points: 108.16, available: true},
+{name: "CincinnatiCin", positions: [DEF], points: 107.83, available: true},
+{name: "Darius SlaytonNYG", positions: [WR,FL], points: 107.11, available: true},
+{name: "Green BayGB", positions: [DEF], points: 105.21, available: true},
+{name: "AtlantaAtl", positions: [DEF], points: 105.15, available: true},
+{name: "ChicagoChi", positions: [DEF], points: 105.06, available: true},
+{name: "Tyler AllgeierAtl", positions: [RB,FL], points: 104.89, available: true},
+{name: "Los AngelesLAC", positions: [DEF], points: 104.36, available: true},
+{name: "Ty ChandlerMin", positions: [RB,FL], points: 104.28, available: true},
+{name: "SeattleSea", positions: [DEF], points: 103.6, available: true},
+{name: "Antonio GibsonNE", positions: [RB,FL], points: 103.12, available: true},
+{name: "New OrleansNO", positions: [DEF], points: 102.71, available: true},
+{name: "JacksonvilleJax", positions: [DEF], points: 101.4, available: true},
+{name: "Tampa BayTB", positions: [DEF], points: 101.02, available: true},
+{name: "Chigoziem OkonkwoTen", positions: [TE,FL], points: 100.82, available: true},
+{name: "Jaleel McLaughlinDen", positions: [RB,FL], points: 100.68, available: true},
+{name: "Ben SinnottWas", positions: [TE,FL], points: 100.19, available: true},
+{name: "Las VegasLV", positions: [DEF], points: 99.77, available: true},
+{name: "Los AngelesLAR", positions: [DEF], points: 99.64, available: true},
+{name: "MinnesotaMin", positions: [DEF], points: 99.54, available: true},
+{name: "Rico DowdleDal", positions: [RB,FL], points: 98.97, available: true},
+{name: "Elijah MooreCle", positions: [WR,FL], points: 98.54, available: true},
+{name: "Demarcus RobinsonLAR", positions: [WR,FL], points: 98.15, available: true},
+{name: "IndianapolisInd", positions: [DEF], points: 97.08, available: true},
+{name: "Jahan DotsonPhi", positions: [WR,FL], points: 92.81, available: true},
+{name: "Aidan O'ConnellLV", positions: [QB], points: 92.24, available: true},
+{name: "Tucker KraftGB", positions: [TE,FL], points: 92.09, available: true},
+{name: "Tyler ConklinNYJ", positions: [TE,FL], points: 90.91, available: true},
+{name: "K.J. OsbornNE", positions: [WR,FL], points: 89.88, available: true},
+{name: "Jalen TolbertDal", positions: [WR,FL], points: 89.58, available: true},
+{name: "Khalil HerbertChi", positions: [RB,FL], points: 88.27, available: true},
+{name: "Zay JonesAri", positions: [WR,FL], points: 87.24, available: true},
+{name: "Isaiah LikelyBal", positions: [TE,FL], points: 86.6, available: true},
+{name: "DJ CharkLAC", positions: [WR,FL], points: 86.04, available: true},
+{name: "Noah FantSea", positions: [TE,FL], points: 85.97, available: true},
+{name: "Ray DavisBuf", positions: [RB,FL], points: 85.17, available: true},
+{name: "Javon BakerNE", positions: [WR,FL], points: 85.06, available: true},
+{name: "Kimani VidalLAC", positions: [RB,FL], points: 84.79, available: true},
+      ];
+	  rawData.sort((a, b) => b.points - a.points);
+      let rawDataPositionsMap = [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ];
+
+      let searchArray = location.search.substring(1).split("&");
+      let params = {};
+      for(let i in searchArray) {
+        let param = searchArray[i].split("=");
+        params[param[0]] = Number(param[1]);
+      }
+      let numberOfTeams = params.numberOfTeams || 10;
+      let minimaxMaxTime = params.minimaxMaxTime || 100;
+	  let maxMovesToUse = params.maxMovesToUse || 100;
+
+      let numberOfStarters = 9;
+      let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
+      let possiblePositionsMap = [
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2
+      ];
+      let possiblePositionsMapStarters = [
+        1,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ];
+      let possiblePositionsMapBench = [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ];
+      let bestAvailablePlayerMap = [];
+      let draftResults = [];
+	  
+	  let starterMultiplier = (1 / 17) * 13;
+	  let benchMultiplier = (1 / 17) * 2;
+	  
+	  let alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	  let codes = [];
+	  for(let i = 0; i < alphabet.length; i++) {
+	    for(let j = 0; j < alphabet.length; j++) {
+		  codes.push(alphabet[i] + alphabet[j]);
+		}
+	  }
+
+      for(let i = 0; i < rawData.length; i++) {
+	    rawData[i].code = codes[i];
+        rawData[i].positionsString = "" + rawData[i].positions;
+        rawData[i].nextPlayer = {};
+        for(let j = 0; j < rawData[i].positions.length; j++) {
+          rawDataPositionsMap[rawData[i].positions[j]].push(rawData[i]);
+          let lastIndex = rawDataPositionsMap[rawData[i].positions[j]].length - 1;
+          if(lastIndex > 0) {
+            rawDataPositionsMap[rawData[i].positions[j]][lastIndex - 1].nextPlayer[rawData[i].positions[j]] = rawDataPositionsMap[rawData[i].positions[j]][lastIndex];
+          } else {
+            bestAvailablePlayerMap[rawData[i].positions[j]] = rawData[i];
+          }
+        }
+      }
+      console.log(rawData);
+      console.log(rawDataPositionsMap);
+      console.log(bestAvailablePlayerMap);
+
+      for(let i = 0; i < numberOfTeams; i++) {
+        draftResults.push([]);
+      }
+
+      function getTeamTotal(teamIndex) {
+		let totalPoints = 0;
+		let teamPlayers = draftResults[teamIndex].slice();
+		teamPlayers.sort((a, b) => b.points - a.points);
+		for(let i = 0; i < defaultPositions.length; i++) {
+		  for(let j = 0; j < teamPlayers.length; j++) {
+		    if(teamPlayers[j].positions.indexOf(defaultPositions[i]) >= 0) {
+			  if(i < numberOfStarters) {
+			    totalPoints += (teamPlayers[j].points * starterMultiplier);
+			  } else {
+			    totalPoints += (teamPlayers[j].points * benchMultiplier);
+			  }
+			  teamPlayers.splice(j, 1);
+			  break;
+			}
+		  }
+		}
+		return totalPoints;
+      }
+
+      function getCheckboxId(teamIndex, playerIndex) {
+        return "team_" + teamIndex + "_player_" + playerIndex;
+      }
+
+      function getTeamId(teamIndex) {
+        return "team_" + teamIndex;
+      }
+
+      function updateTeamTotal(teamIndex) {
+        document.getElementById(getTeamId(teamIndex)).innerHTML = Math.floor(getTeamTotal(teamIndex));
+      }
+
+      function updateDraftBoard(teamIndex, playerIndex) {
+        if(document.getElementById(getCheckboxId(teamIndex, playerIndex)).checked) {
+          let draftIndex = draftResults[teamIndex].indexOf(rawData[playerIndex]);
+          if(draftIndex < 0) {
+            draftPlayer(teamIndex, rawData[playerIndex]);
+          }
+        } else {
+          let draftIndex = draftResults[teamIndex].indexOf(rawData[playerIndex]);
+          if(draftIndex >= 0) {
+            undraftPlayer(teamIndex, draftIndex);
+          }
+        }
+        for(let i = 0; i < defaultPositions.length; i++) {
+          document.getElementById(getDraftId(teamIndex, i)).innerHTML = "";
+        }
+        for(let i = 0; i < draftResults[teamIndex].length; i++) {
+          document.getElementById(getDraftId(teamIndex, i)).innerHTML = draftResults[teamIndex][i].name + " " + draftResults[teamIndex][i].positions;
+        }
+      }
+
+      function update(teamIndex, playerIndex) {
+        updateDraftBoard(teamIndex, playerIndex);
+        updateTeamTotal(teamIndex);
+      }
+
+      let missingPositionsCache = {};
+	  function buildMissingPositions(teamPlayersIn) {
+		let cacheKey = "";
+		for(let i = 0; i < teamPlayersIn.length; i++) {
+		  cacheKey += teamPlayersIn[i].code;
+		}
+		if(missingPositionsCache[cacheKey]) {
+		  return missingPositionsCache[cacheKey];
+		}
+		let missingPositions = [];
+		let missingPositionsStarter = [];
+		let teamPlayers = teamPlayersIn.slice();
+		for(let i = 1; i < teamPlayers.length; i++) {
+		  for(let j = i; j > 0 && teamPlayers[j-1].points < teamPlayers[j].points; j--) {
+		    let tempPlayer = teamPlayers[j-1];
+			teamPlayers[j-1] = teamPlayers[j];
+			teamPlayers[j] = tempPlayer;
+		  }
+		}
+		for(let i = 0; i < defaultPositions.length; i++) {
+		  let found = false;
+		  for(let j = 0; j < teamPlayers.length; j++) {
+		    if(teamPlayers[j].positions.indexOf(defaultPositions[i]) >= 0) {
+			  teamPlayers.splice(j, 1);
+			  found = true;
+			  break;
+			}
+		  }
+		  if(!found) {
+			if(i < numberOfStarters) {
+			  missingPositions.push(defaultPositions[i]);
+			  missingPositionsStarter.push(true);
+			} else {
+			  missingPositions.push(defaultPositions[i]);
+			  missingPositionsStarter.push(false);
+			}
+		  }
+		}
+		for(let i = 0; i < missingPositions.length; i++) {
+		  for(let j = missingPositions.length; j > i; j--) {
+		    if(missingPositions[i] === missingPositions[j]) {
+			  missingPositions.splice(j, 1);
+			  missingPositionsStarter.splice(j, 1);
+			}
+		  }
+		}
+		let retVal = {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
+		missingPositionsCache[cacheKey] = retVal;
+		return retVal;
+	  }
+
+      function getSimplePick(teamIndex) {
+        let teamPlayers = draftResults[teamIndex];
+        let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
+		return buildMoves(missingPositions, missingPositionsStarter, maxMovesToUse)[0];
+      }
+
+      function getAvailablePlayerMoves(teamIndex, maxMoves) {
+        let teamPlayers = draftResults[teamIndex];
+        let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
+        return buildMoves(missingPositions, missingPositionsStarter, maxMoves);
+      }
+
+      function buildMoves(missingPositions, missingPositionsStarter, maxMoves) {
+        let moves = [];
+		let movesWithStarter = [];
+        for(let i = 0; i < missingPositions.length; i++) {
+          let positionsMap = rawDataPositionsMap[missingPositions[i]];
+          for(let j = 0; j < positionsMap.length; j++) {
+            let playerData = positionsMap[j];
+            if(playerData.available === true) {
+              if(moves.indexOf(playerData) < 0) {
+                moves.push(playerData);
+				movesWithStarter.push({playerData: playerData, starter: missingPositionsStarter[i]});
+                break;
+              }
+              break;
+            }
+          }
+        }
+		
+		for(let i = 1; i < movesWithStarter.length; i++) {
+		  for(let j = i; j > 0; j--) {
+		    let a = movesWithStarter[j-1];
+			let b = movesWithStarter[j];
+		    let aPoints, bPoints;
+		    if(a.starter) {
+		      aPoints = (a.playerData.points * starterMultiplier);
+		    } else {
+		      aPoints = (a.playerData.points * benchMultiplier);
+		    }
+		    if(b.starter) {
+		      bPoints = (b.playerData.points * starterMultiplier);
+		    } else {
+		      bPoints = (b.playerData.points * benchMultiplier);
+		    }
+			if(aPoints < bPoints) {
+			  let tempMove = movesWithStarter[j-1];
+			  movesWithStarter[j-1] = movesWithStarter[j];
+			  movesWithStarter[j] = tempMove;
+			} else {
+			  break;
+			}
+		  } 
+		}
+
+        moves = movesWithStarter.slice(0, maxMoves).map((item) => item.playerData);
+
+        return moves;
+      }
+
+      function draftPlayer(teamIndex, playerData) {
+        draftResults[teamIndex].push(playerData);
+        playerData.available = false;
+      }
+
+      function undraftPlayer(teamIndex, draftIndex) {
+        let playerData = {};
+        if(draftIndex === draftResults[teamIndex].length - 1) {
+          playerData = draftResults[teamIndex].pop();
+        } else {
+          playerData = draftResults[teamIndex].splice(draftIndex, 1)[0];
+        }
+        playerData.available = true;
+      }
+
+      let INFINITY = 1000000;
+      let bestMove = "";
+	  let bestMoveIndex = -1;
+      function getMinimaxPick(depth, alpha, beta, teamIndex, maxDepth, maxTeamIndex, direction, movesToUse) {
+        let moves = [];
+
+        if(depth !== 0) {
+          moves = getAvailablePlayerMoves(teamIndex, movesToUse > maxMovesToUse ? maxMovesToUse : movesToUse > 1 ? movesToUse : 1);
+        }
+
+        if(depth === 0 || moves.length === 0) {
+          return getTeamTotal(maxTeamIndex);
+        }
+
+        let nextDirection = direction;
+        let nextTeamIndex = teamIndex + direction;
+        let nextDepth = depth - 1;
+        if(nextTeamIndex === numberOfTeams || nextTeamIndex === -1) {
+          nextDirection = -nextDirection;
+          nextTeamIndex = nextTeamIndex + nextDirection;
+        }
+
+        if(teamIndex === maxTeamIndex) {
+          let value = -INFINITY;
+          for(let i = 0; i < moves.length; i++) {
+            draftPlayer(teamIndex, moves[i]);
+            let minimaxValue = getMinimaxPick(nextDepth, alpha, beta, nextTeamIndex, maxDepth, maxTeamIndex, nextDirection, movesToUse - 1);
+            if(depth === maxDepth) {
+              console.log("value", minimaxValue);
+              console.log("move", moves[i]);
+            }
+            if(minimaxValue > value) {
+              value = minimaxValue;
+              if(depth === maxDepth) {
+                bestMove = moves[i];
+				if(moves.length >= maxMovesToUse || moves.length >= 6) {
+				  bestMoveIndex = i;
+				} else {
+				  bestMoveIndex = -1;
+				}
+              }
+            }
+            undraftPlayer(teamIndex, draftResults[teamIndex].length - 1);
+            alpha = Math.max(alpha, value);
+            if(value >= beta) {
+              break;
+            }
+          }
+          return value;
+        } else {
+          let value = INFINITY;
+          for(let i = 0; i < moves.length; i++) {
+            draftPlayer(teamIndex, moves[i]);
+            let minimaxValue = getMinimaxPick(nextDepth, alpha, beta, nextTeamIndex, maxDepth, maxTeamIndex, nextDirection, movesToUse - 1);
+            if(minimaxValue < value) {
+              value = minimaxValue;
+            }
+            undraftPlayer(teamIndex, draftResults[teamIndex].length - 1);
+            beta = Math.min(beta, value);
+            if(value <= alpha) {
+              break;
+            }
+          }
+          return value;
+        }
+      }
+
+      function autoCheckPlayer(teamIndex, playerData) {
+        for(let i = 0; i < rawData.length; i++) {
+          if(rawData[i].name === playerData.name) {
+            document.getElementById(getCheckboxId(teamIndex, i)).checked = true;
+            update(teamIndex, i);
+            break;
+          }
+        }
+      }
+
+      function stddev(data) {
+        let sum = 0;
+        for(let i = 0; i < data.length; i++) {
+          sum += data[i];
+        }
+        let mean = sum / data.length;
+        sum = 0;
+        for(let i = 0; i < data.length; i++) {
+          sum += Math.pow(data[i] - mean, 2);
+        }
+        let variance = sum / (data.length - 1);
+        let sd = Math.sqrt(variance);
+        return sd;
+      }
+
+      function printDraftTotal() {
+        let teamTotals = [];
+        let total = 0;
+        for(let i = 0; i < numberOfTeams; i++) {
+          let teamTotal = getTeamTotal(i);
+		  total += teamTotal;
+          teamTotals.push(teamTotal);
+        }
+        console.log("stddev", stddev(teamTotals));
+        console.log("draft total", total);
+		console.log("bestMoveIndexArray", bestMoveIndexArray);
+		console.log("0 count", bestMoveIndexArray.filter((item) => item == 0).length);
+		console.log("1 count", bestMoveIndexArray.filter((item) => item == 1).length);
+		console.log("2 count", bestMoveIndexArray.filter((item) => item == 2).length);
+		console.log("3 count", bestMoveIndexArray.filter((item) => item == 3).length);
+		console.log("4 count", bestMoveIndexArray.filter((item) => item == 4).length);
+		console.log("5 count", bestMoveIndexArray.filter((item) => item == 5).length);
+		console.log("6 count", bestMoveIndexArray.filter((item) => item == 6).length);
+      }
+
+      function getRemainingPickCount() {
+        let total = numberOfTeams * defaultPositions.length;
+        let count = 0;
+        for(let i = 0; i < numberOfTeams; i++) {
+          count += draftResults[i].length;
+        }
+        return total - count;
+      }
+
+      let bestMoveIndexArray = [];
+      function getNextPick(teamIndex, minimax) {
+        let depth = getRemainingPickCount();
+        let direction = draftResults[teamIndex].length % 2 === 0 ? 1 : -1;
+        let startTime = new Date();
+        let endTime = new Date();
+        let playerData = getSimplePick(teamIndex);
+        if(minimax) {
+          console.log("*************************************************************");
+          console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
+          console.log("*************************************************************");
+          for(let i = 6; i < 100 && endTime - startTime < minimaxMaxTime; i++) {
+            console.log("********** initial moves " + i);
+            getMinimaxPick(depth, -INFINITY, INFINITY, teamIndex, depth, teamIndex, direction, i);
+            endTime = new Date();
+          }
+          playerData = bestMove;
+		  if(bestMoveIndex >= 0) {
+		    bestMoveIndexArray.push(bestMoveIndex);
+		  }
+        }
+        endTime = new Date();
+        console.log("total time", endTime - startTime);
+        autoCheckPlayer(teamIndex, playerData);
+        printDraftTotal();
+      }
+
+      function startTest(teamIndex, direction, minimax) {
+        getNextPick(teamIndex, minimax);
+        teamIndex = teamIndex + direction;
+        if(teamIndex === numberOfTeams || teamIndex === -1) {
+          direction = -direction;
+          teamIndex = teamIndex + direction;
+        }
+        if(draftResults[0].length < defaultPositions.length || draftResults[numberOfTeams - 1].length < defaultPositions.length) {
+          setTimeout(() => {
+            startTest(teamIndex, direction, minimax);
+          }, 100);
+        }
+      }
+
+      function getDraftId(teamIndex, draftIndex) {
+        return "team_" + teamIndex + "_draft_" + draftIndex;
+      }
+
+      document.write("<table>");
+      document.write("<tr class='heading'>");
+      for(let i = 0; i < numberOfTeams; i++) {
+        document.write("<td>Team " + (i + 1) + "<br><button onclick='getNextPick(" + i + ", false)'>Get Simple Pick</button><br><button onclick='getNextPick(" + i + ", true)'>Get Minimax Pick</button></td>");
+      }
+      document.write("</tr>");
+      for(let i = 0; i < defaultPositions.length; i++) {
+        document.write("<tr>");
+        for(let j = 0; j < numberOfTeams; j++) {
+          document.write("<td id='" + getDraftId(j, i) + "'></td>");
+        }
+        document.write("</tr>");
+      }
+      document.write("</table>");
+
+      document.write("<table>");
+      for(let i = 0; i < numberOfTeams; i++) {
+        document.write("<tr>");
+        document.write("<td class='heading'>Team " + (i + 1) + " Total</td>");
+        document.write("<td id='" + getTeamId(i) + "'>" + getTeamTotal(i) + "</td>");
+        document.write("</tr>");
+      }
+      document.write("</table>");
+
+      document.write("<table>");
+      for(let i = 0; i < rawData.length; i++) {
+        if(i % 10 === 0) {
+          document.write("<tr class='heading'>");
+          document.write("<td>Player</td>");
+          document.write("<td>Postions</td>");
+          document.write("<td>Points</td>");
+          for(let i = 0; i < numberOfTeams; i++) {
+            document.write("<td>Team " + (i + 1) + "</td>");
+          }
+          document.write("</tr>");
+        }
+        document.write("<tr>");
+        document.write("<td>" + rawData[i].name + "</td>");
+        document.write("<td>" + rawData[i].positions + "</td>");
+        document.write("<td>" + rawData[i].points + "</td>");
+        for(let j = 0; j < numberOfTeams; j++) {
+          document.write("<td><input type='checkbox' id='" + getCheckboxId(j, i) + "' onclick='update(" + j + ", " + i + ")'></td>");
+        }
+        document.write("</tr>");
+      }
+      document.write("</table>");
+
+      document.write("<table>");
+      document.write("<tr>");
+      document.write("<td><button onclick='startTest(0, 1, false)'>Start Simple Simulation</button></td>");
+      document.write("</tr>");
+      document.write("<tr>");
+      document.write("<td><button onclick='startTest(0, 1, true)'>Start Minimax Simulation</button></td>");
+      document.write("</tr>");
+      document.write("</table>");
+    </script>
+  </body>
+</html>
