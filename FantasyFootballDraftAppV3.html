@@ -289,57 +289,16 @@
         params[param[0]] = Number(param[1]);
       }
       let numberOfTeams = params.numberOfTeams || 10;
-      let minimaxMaxTime = params.minimaxMaxTime || 100;
-	  let maxMovesToUse = params.maxMovesToUse || 100;
 
       let numberOfStarters = 9;
       let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
-      let possiblePositionsMap = [
-        2,
-        3,
-        3,
-        2,
-        2,
-        2,
-        2
-      ];
-      let possiblePositionsMapStarters = [
-        1,
-        2,
-        2,
-        1,
-        1,
-        1,
-        1
-      ];
-      let possiblePositionsMapBench = [
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
-      ];
       let bestAvailablePlayerMap = [];
       let draftResults = [];
-	  
-	  let starterMultiplier = (1 / 17) * 13;
-	  let benchMultiplier = (1 / 17) * 2;
-	  
-	  let alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
-	  let codes = [];
-	  for(let i = 0; i < alphabet.length; i++) {
-	    for(let j = 0; j < alphabet.length; j++) {
-		  codes.push(alphabet[i] + alphabet[j]);
-		}
-	  }
 
       for(let i = 0; i < rawData.length; i++) {
 		if(rawData[i].positions.indexOf(WR) >= 0 || rawData[i].positions.indexOf(RB) >= 0 || rawData[i].positions.indexOf(TE) >= 0) {
 			rawData[i].positions.push(FL);
 		}
-	    rawData[i].code = codes[i];
         rawData[i].positionsString = "" + rawData[i].positions;
         rawData[i].nextPlayer = {};
         for(let j = 0; j < rawData[i].positions.length; j++) {
@@ -367,11 +326,7 @@
 		for(let i = 0; i < defaultPositions.length; i++) {
 		  for(let j = 0; j < teamPlayers.length; j++) {
 		    if(teamPlayers[j].positions.indexOf(defaultPositions[i]) >= 0) {
-			  if(i < numberOfStarters) {
-			    totalPoints += (teamPlayers[j].points * starterMultiplier);
-			  } else {
-			    totalPoints += (teamPlayers[j].points * benchMultiplier);
-			  }
+			  totalPoints += teamPlayers[j].points;
 			  teamPlayers.splice(j, 1);
 			  break;
 			}
@@ -417,15 +372,7 @@
         updateTeamTotal(teamIndex);
       }
 
-      let missingPositionsCache = {};
 	  function buildMissingPositions(teamPlayersIn) {
-		let cacheKey = "";
-		for(let i = 0; i < teamPlayersIn.length; i++) {
-		  cacheKey += teamPlayersIn[i].code;
-		}
-		if(missingPositionsCache[cacheKey]) {
-		  return missingPositionsCache[cacheKey];
-		}
 		let missingPositions = [];
 		let missingPositionsStarter = [];
 		let teamPlayers = teamPlayersIn.slice();
@@ -464,17 +411,16 @@
 		  }
 		}
 		let retVal = {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
-		missingPositionsCache[cacheKey] = retVal;
 		return retVal;
 	  }
 
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
         let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
-		return buildMoves(missingPositions, missingPositionsStarter, maxMovesToUse)[0];
+		return buildMoves(missingPositions, missingPositionsStarter)[0];
       }
 
-      function buildMoves(missingPositions, missingPositionsStarter, maxMoves) {
+      function buildMoves(missingPositions, missingPositionsStarter) {
         let moves = [];
 		let movesWithStarter = [];
         for(let i = 0; i < missingPositions.length; i++) {
@@ -497,16 +443,8 @@
 		    let a = movesWithStarter[j-1];
 			let b = movesWithStarter[j];
 		    let aPoints, bPoints;
-		    if(a.starter) {
-		      aPoints = (a.playerData.points * starterMultiplier);
-		    } else {
-		      aPoints = (a.playerData.points * benchMultiplier);
-		    }
-		    if(b.starter) {
-		      bPoints = (b.playerData.points * starterMultiplier);
-		    } else {
-		      bPoints = (b.playerData.points * benchMultiplier);
-		    }
+			aPoints = a.playerData.points;
+			bPoints = b.playerData.points;
 			if(aPoints < bPoints) {
 			  let tempMove = movesWithStarter[j-1];
 			  movesWithStarter[j-1] = movesWithStarter[j];
@@ -517,7 +455,7 @@
 		  } 
 		}
 
-        moves = movesWithStarter.slice(0, maxMoves).map((item) => item.playerData);
+        moves = movesWithStarter.map((item) => item.playerData);
 
         return moves;
       }
