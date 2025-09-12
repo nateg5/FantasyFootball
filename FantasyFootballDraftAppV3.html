@@ -292,28 +292,18 @@
 
       let numberOfStarters = 9;
       let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
-      let bestAvailablePlayerMap = [];
       let draftResults = [];
 
       for(let i = 0; i < rawData.length; i++) {
 		if(rawData[i].positions.indexOf(WR) >= 0 || rawData[i].positions.indexOf(RB) >= 0 || rawData[i].positions.indexOf(TE) >= 0) {
 			rawData[i].positions.push(FL);
 		}
-        rawData[i].positionsString = "" + rawData[i].positions;
-        rawData[i].nextPlayer = {};
         for(let j = 0; j < rawData[i].positions.length; j++) {
           rawDataPositionsMap[rawData[i].positions[j]].push(rawData[i]);
-          let lastIndex = rawDataPositionsMap[rawData[i].positions[j]].length - 1;
-          if(lastIndex > 0) {
-            rawDataPositionsMap[rawData[i].positions[j]][lastIndex - 1].nextPlayer[rawData[i].positions[j]] = rawDataPositionsMap[rawData[i].positions[j]][lastIndex];
-          } else {
-            bestAvailablePlayerMap[rawData[i].positions[j]] = rawData[i];
-          }
         }
       }
       console.log(rawData);
       console.log(rawDataPositionsMap);
-      console.log(bestAvailablePlayerMap);
 
       for(let i = 0; i < numberOfTeams; i++) {
         draftResults.push([]);
