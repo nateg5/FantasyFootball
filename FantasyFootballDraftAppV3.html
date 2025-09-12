@@ -376,13 +376,13 @@
 		let missingPositionsStarters = [];
 		let missingPositionsBench = [];
 		let teamPlayers = teamPlayersIn.slice();
-		for(let i = 1; i < teamPlayers.length; i++) {
-		  for(let j = i; j > 0 && teamPlayers[j-1].points < teamPlayers[j].points; j--) {
-		    let tempPlayer = teamPlayers[j-1];
-			teamPlayers[j-1] = teamPlayers[j];
-			teamPlayers[j] = tempPlayer;
-		  }
-		}
+		
+		// make sure players are sorted by points
+		teamPlayers.sort((a, b) => {
+			return b.points - a.points;
+		});
+		
+		// find what starter and bench positions are missing
 		for(let i = 0; i < defaultPositions.length; i++) {
 		  let found = false;
 		  for(let j = 0; j < teamPlayers.length; j++) {
@@ -400,27 +400,26 @@
 			}
 		  }
 		}
+		
+		// copy start or bench positions, making sure starters are drafted first
 		let missingPositions = missingPositionsStarters.length > 0 ? missingPositionsStarters.slice() : missingPositionsBench.slice();
-		for(let i = 0; i < missingPositions.length; i++) {
-		  for(let j = missingPositions.length; j > i; j--) {
-		    if(missingPositions[i] === missingPositions[j]) {
-			  missingPositions.splice(j, 1);
-			}
-		  }
-		}
-		let retVal = {missingPositions: missingPositions};
-		return retVal;
+		
+		// remove duplicate missing positions
+		missingPositions = [...new Set(missingPositions)];
+		
+		return missingPositions;
 	  }
 
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
-        let {missingPositions} = buildMissingPositions(teamPlayers);
+        let missingPositions = buildMissingPositions(teamPlayers);
 		return buildMoves(missingPositions)[0];
       }
 
       function buildMoves(missingPositions) {
         let moves = [];
-		let movesWithStarter = [];
+		
+		// find the best player for each missing position
         for(let i = 0; i < missingPositions.length; i++) {
           let positionsMap = rawDataPositionsMap[missingPositions[i]];
           for(let j = 0; j < positionsMap.length; j++) {
@@ -428,7 +427,6 @@
             if(playerData.available === true) {
               if(moves.indexOf(playerData) < 0) {
                 moves.push(playerData);
-				movesWithStarter.push({playerData: playerData});
                 break;
               }
               break;
@@ -436,24 +434,10 @@
           }
         }
 		
-		for(let i = 1; i < movesWithStarter.length; i++) {
-		  for(let j = i; j > 0; j--) {
-		    let a = movesWithStarter[j-1];
-			let b = movesWithStarter[j];
-		    let aPoints, bPoints;
-			aPoints = a.playerData.points;
-			bPoints = b.playerData.points;
-			if(aPoints < bPoints) {
-			  let tempMove = movesWithStarter[j-1];
-			  movesWithStarter[j-1] = movesWithStarter[j];
-			  movesWithStarter[j] = tempMove;
-			} else {
-			  break;
-			}
-		  } 
-		}
-
-        moves = movesWithStarter.map((item) => item.playerData);
+		// make sure the available move are sorted by points
+		moves.sort((a, b) => {
+			return b.points - a.points;
+		});
 
         return moves;
       }
