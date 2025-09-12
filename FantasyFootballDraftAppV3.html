@@ -373,8 +373,8 @@
       }
 
 	  function buildMissingPositions(teamPlayersIn) {
-		let missingPositions = [];
-		let missingPositionsStarter = [];
+		let missingPositionsStarters = [];
+		let missingPositionsBench = [];
 		let teamPlayers = teamPlayersIn.slice();
 		for(let i = 1; i < teamPlayers.length; i++) {
 		  for(let j = i; j > 0 && teamPlayers[j-1].points < teamPlayers[j].points; j--) {
@@ -394,33 +394,31 @@
 		  }
 		  if(!found) {
 			if(i < numberOfStarters) {
-			  missingPositions.push(defaultPositions[i]);
-			  missingPositionsStarter.push(true);
+			  missingPositionsStarters.push(defaultPositions[i]);
 			} else {
-			  missingPositions.push(defaultPositions[i]);
-			  missingPositionsStarter.push(false);
+			  missingPositionsBench.push(defaultPositions[i]);
 			}
 		  }
 		}
+		let missingPositions = missingPositionsStarters.length > 0 ? missingPositionsStarters.slice() : missingPositionsBench.slice();
 		for(let i = 0; i < missingPositions.length; i++) {
 		  for(let j = missingPositions.length; j > i; j--) {
 		    if(missingPositions[i] === missingPositions[j]) {
 			  missingPositions.splice(j, 1);
-			  missingPositionsStarter.splice(j, 1);
 			}
 		  }
 		}
-		let retVal = {missingPositions: missingPositions, missingPositionsStarter: missingPositionsStarter};
+		let retVal = {missingPositions: missingPositions};
 		return retVal;
 	  }
 
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
-        let {missingPositions, missingPositionsStarter} = buildMissingPositions(teamPlayers);
-		return buildMoves(missingPositions, missingPositionsStarter)[0];
+        let {missingPositions} = buildMissingPositions(teamPlayers);
+		return buildMoves(missingPositions)[0];
       }
 
-      function buildMoves(missingPositions, missingPositionsStarter) {
+      function buildMoves(missingPositions) {
         let moves = [];
 		let movesWithStarter = [];
         for(let i = 0; i < missingPositions.length; i++) {
@@ -430,7 +428,7 @@
             if(playerData.available === true) {
               if(moves.indexOf(playerData) < 0) {
                 moves.push(playerData);
-				movesWithStarter.push({playerData: playerData, starter: missingPositionsStarter[i]});
+				movesWithStarter.push({playerData: playerData});
                 break;
               }
               break;
