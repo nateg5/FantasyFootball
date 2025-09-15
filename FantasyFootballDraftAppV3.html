@@ -418,7 +418,7 @@
 		return moves[0].playerData;
       }
 	  
-	  function calculateLookAhead(teamIndex) {
+	  function calculateLookAhead(teamIndex, missingPosition) {
 		if(teamIndex == 0 && draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
 			return 1;
 		}
@@ -426,16 +426,44 @@
 			return 1;
 		}
 		if(teamIndex == 0) {
-			return numberOfTeams;
+			let lookAhead = 1;
+			for(let i = teamIndex + 1; i < draftResults.length; i++) {
+				let missingPositions = buildMissingPositions(draftResults[i]);
+				if(missingPositions.indexOf(missingPosition) >= 0) {
+					lookAhead++;
+				}
+			}
+			return lookAhead;
 		}
 		if(teamIndex == numberOfTeams-1) {
-			return numberOfTeams;
+			let lookAhead = 1;
+			for(let i = teamIndex - 1; i >= 0; i--) {
+				let missingPositions = buildMissingPositions(draftResults[i]);
+				if(missingPositions.indexOf(missingPosition) >= 0) {
+					lookAhead++;
+				}
+			}
+			return lookAhead;
 		}
 		if(draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
-			return teamIndex + 1;
+			let lookAhead = 1;
+			for(let i = teamIndex - 1; i >= 0; i--) {
+				let missingPositions = buildMissingPositions(draftResults[i]);
+				if(missingPositions.indexOf(missingPosition) >= 0) {
+					lookAhead++;
+				}
+			}
+			return lookAhead;
 		}
 		if(draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
-			return numberOfTeams - teamIndex;
+			let lookAhead = 1;
+			for(let i = teamIndex + 1; i < draftResults.length; i++) {
+				let missingPositions = buildMissingPositions(draftResults[i]);
+				if(missingPositions.indexOf(missingPosition) >= 0) {
+					lookAhead++;
+				}
+			}
+			return lookAhead;
 		}
 	  }
 
@@ -450,7 +478,7 @@
             if(playerData.available === true) {
 				let nextXCount = 0;
 				let nextXTotal = 0;
-				let lookAhead = calculateLookAhead(teamIndex);
+				let lookAhead = calculateLookAhead(teamIndex, missingPositions[i]);
 				for(let k = j; k < positionsMap.length && nextXCount < lookAhead; k++) {
 					if(positionsMap[k].available === true) {
 						nextXCount++;
