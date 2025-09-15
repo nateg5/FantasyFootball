@@ -403,10 +403,43 @@
       function getSimplePick(teamIndex) {
         let teamPlayers = draftResults[teamIndex];
         let missingPositions = buildMissingPositions(teamPlayers);
-		return buildMoves(missingPositions)[0];
+		return buildMoves(missingPositions, teamIndex)[0].playerData;
       }
 
-      function buildMoves(missingPositions) {
+      function getIntelliPick(teamIndex) {
+        let teamPlayers = draftResults[teamIndex];
+        let missingPositions = buildMissingPositions(teamPlayers);
+		let moves = buildMoves(missingPositions, teamIndex);
+		
+		moves.sort((a, b) => {
+			return b.score - a.score;
+		});
+		
+		return moves[0].playerData;
+      }
+	  
+	  function calculateLookAhead(teamIndex) {
+		if(teamIndex == 0 && draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
+			return 1;
+		}
+		if(teamIndex == numberOfTeams-1 && draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
+			return 1;
+		}
+		if(teamIndex == 0) {
+			return numberOfTeams;
+		}
+		if(teamIndex == numberOfTeams-1) {
+			return numberOfTeams;
+		}
+		if(draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
+			return teamIndex + 1;
+		}
+		if(draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
+			return numberOfTeams - teamIndex;
+		}
+	  }
+
+      function buildMoves(missingPositions, teamIndex) {
         let moves = [];
 		
 		// find the best player for each missing position
@@ -415,18 +448,28 @@
           for(let j = 0; j < positionsMap.length; j++) {
             let playerData = positionsMap[j];
             if(playerData.available === true) {
-              if(moves.indexOf(playerData) < 0) {
-                moves.push(playerData);
+				let nextXCount = 0;
+				let nextXTotal = 0;
+				let lookAhead = calculateLookAhead(teamIndex);
+				for(let k = j; k < positionsMap.length && nextXCount < lookAhead; k++) {
+					if(positionsMap[k].available === true) {
+						nextXCount++;
+						nextXTotal += positionsMap[k].points;
+					}
+				}
+				if(nextXCount < lookAhead) {
+					throw new Error();
+					let asdf = 0;
+				}
+                moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - (nextXTotal / nextXCount)});
                 break;
-              }
-              break;
             }
           }
         }
 		
 		// make sure the available move are sorted by points
 		moves.sort((a, b) => {
-			return b.points - a.points;
+			return b.playerData.points - a.playerData.points;
 		});
 
         return moves;
@@ -456,20 +499,24 @@
           }
         }
       }
-
-      function stddev(data) {
-        let sum = 0;
+	  
+	  function average(data) {
+		let sum = 0;
         for(let i = 0; i < data.length; i++) {
           sum += data[i];
         }
         let mean = sum / data.length;
-        sum = 0;
+		return mean;
+	  }
+
+      function avgdev(data) {
+        let mean = average(data);
+        let sum = 0;
         for(let i = 0; i < data.length; i++) {
-          sum += Math.pow(data[i] - mean, 2);
+          sum += Math.abs(data[i] - mean);
         }
-        let variance = sum / (data.length - 1);
-        let sd = Math.sqrt(variance);
-        return sd;
+        let deviation = sum / data.length;
+        return deviation;
       }
 
       function printDraftTotal() {
@@ -480,8 +527,9 @@
 		  total += teamTotal;
           teamTotals.push(teamTotal);
         }
-        console.log("stddev", stddev(teamTotals));
-        console.log("draft total", total);
+        console.log("avgdev", avgdev(teamTotals));
+        console.log("average", average(teamTotals));
+		console.log("adjusted average", average(teamTotals) - (avgdev(teamTotals)/2));
       }
 
       function getNextPick(teamIndex, intelliPick) {
@@ -493,7 +541,7 @@
           console.log("*************************************************************");
           console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
           console.log("*************************************************************");
-          playerData = getSimplePick(teamIndex);
+          playerData = getIntelliPick(teamIndex);
         }
         endTime = new Date();
         console.log("total time", endTime - startTime);
