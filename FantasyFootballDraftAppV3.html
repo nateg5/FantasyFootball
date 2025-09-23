@@ -422,58 +422,9 @@
       }
 	  
 	  function calculateLookAhead(teamIndex, missingPosition) {
-		// v3
-		/*if(teamIndex == 0 && draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
-			return 1;
-		}
-		if(teamIndex == numberOfTeams-1 && draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
-			return 1;
-		}
-		if(teamIndex == 0) {
-			let lookAhead = 1;
-			for(let i = teamIndex + 1; i < draftResults.length; i++) {
-				let missingPositions = buildMissingPositions(draftResults[i]);
-				if(missingPositions.indexOf(missingPosition) >= 0) {
-					lookAhead++;
-				}
-			}
-			return lookAhead;
-		}
-		if(teamIndex == numberOfTeams-1) {
-			let lookAhead = 1;
-			for(let i = teamIndex - 1; i >= 0; i--) {
-				let missingPositions = buildMissingPositions(draftResults[i]);
-				if(missingPositions.indexOf(missingPosition) >= 0) {
-					lookAhead++;
-				}
-			}
-			return lookAhead;
-		}
-		if(draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
-			let lookAhead = 1;
-			for(let i = teamIndex - 1; i >= 0; i--) {
-				let missingPositions = buildMissingPositions(draftResults[i]);
-				if(missingPositions.indexOf(missingPosition) >= 0) {
-					lookAhead++;
-				}
-			}
-			return lookAhead;
-		}
-		if(draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
-			let lookAhead = 1;
-			for(let i = teamIndex + 1; i < draftResults.length; i++) {
-				let missingPositions = buildMissingPositions(draftResults[i]);
-				if(missingPositions.indexOf(missingPosition) >= 0) {
-					lookAhead++;
-				}
-			}
-			return lookAhead;
-		}*/
-		
 		let lookAhead = 0;
 		for(let i = 0; i < draftResults.length; i++) {
 			let missingPositions = buildMissingPositions(draftResults[i], false);
-			// v2
 			lookAhead += missingPositions.reduce((total, position) => {
 				if(missingPosition == position) {
 					return total + 1;
@@ -481,10 +432,6 @@
 					return total;
 				}
 			}, 0);
-			// v1
-			/*if(missingPositions.indexOf(missingPosition) >= 0) {
-				lookAhead++;
-			}*/
 		}
 		return lookAhead;
 	  }
