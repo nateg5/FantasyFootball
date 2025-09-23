@@ -289,6 +289,7 @@
         params[param[0]] = Number(param[1]);
       }
       let numberOfTeams = params.numberOfTeams || 10;
+	  let intelliTeam = params.intelliTeam || 100;
 
       let numberOfStarters = 9;
       let defaultPositions = [QB, RB, RB, WR, WR, TE, FL, K, DEF, QB, RB, WR, TE, FL, K, DEF];
@@ -362,7 +363,7 @@
         updateTeamTotal(teamIndex);
       }
 
-	  function buildMissingPositions(teamPlayersIn) {
+	  function buildMissingPositions(teamPlayersIn, removeDuplicates = true) {
 		let missingPositionsStarters = [];
 		let missingPositionsBench = [];
 		let teamPlayers = teamPlayersIn.slice();
@@ -394,8 +395,10 @@
 		// copy start or bench positions, making sure starters are drafted first
 		let missingPositions = missingPositionsStarters.length > 0 ? missingPositionsStarters.slice() : missingPositionsBench.slice();
 		
-		// remove duplicate missing positions
-		missingPositions = [...new Set(missingPositions)];
+		if(removeDuplicates) {
+			// remove duplicate missing positions
+			missingPositions = [...new Set(missingPositions)];
+		}
 		
 		return missingPositions;
 	  }
@@ -419,7 +422,8 @@
       }
 	  
 	  function calculateLookAhead(teamIndex, missingPosition) {
-		if(teamIndex == 0 && draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
+		// v3
+		/*if(teamIndex == 0 && draftResults[teamIndex+1].length > draftResults[teamIndex].length) {
 			return 1;
 		}
 		if(teamIndex == numberOfTeams-1 && draftResults[teamIndex-1].length > draftResults[teamIndex].length) {
@@ -464,7 +468,25 @@
 				}
 			}
 			return lookAhead;
+		}*/
+		
+		let lookAhead = 0;
+		for(let i = 0; i < draftResults.length; i++) {
+			let missingPositions = buildMissingPositions(draftResults[i], false);
+			// v2
+			lookAhead += missingPositions.reduce((total, position) => {
+				if(missingPosition == position) {
+					return total + 1;
+				} else {
+					return total;
+				}
+			}, 0);
+			// v1
+			/*if(missingPositions.indexOf(missingPosition) >= 0) {
+				lookAhead++;
+			}*/
 		}
+		return lookAhead;
 	  }
 
       function buildMoves(missingPositions, teamIndex) {
@@ -565,7 +587,7 @@
         let startTime = new Date();
         let endTime = new Date();
         let playerData = getSimplePick(teamIndex);
-        if(intelliPick) {
+        if(intelliPick || teamIndex == intelliTeam-1) {
           console.log("*************************************************************");
           console.log("********** team " + (teamIndex + 1) + " pick " + (draftResults[teamIndex].length + 1) + " **********");
           console.log("*************************************************************");
