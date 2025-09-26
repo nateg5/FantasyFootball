@@ -445,27 +445,19 @@
           for(let j = 0; j < positionsMap.length; j++) {
             let playerData = positionsMap[j];
             if(playerData.available === true) {
-				let nextXCount = 0;
-				let nextXTotal = 0;
-				let lastPoints = 0;
+				let count = 0;
 				let allPoints = [];
 				let lookAhead = calculateLookAhead(teamIndex, missingPositions[i]);
-				for(let k = j; k < positionsMap.length && nextXCount < lookAhead; k++) {
+				for(let k = j; k < positionsMap.length && count < lookAhead; k++) {
 					if(positionsMap[k].available === true) {
-						nextXCount++;
-						nextXTotal += positionsMap[k].points;
-						lastPoints = positionsMap[k].points;
+						count++;
 						allPoints.push(positionsMap[k].points);
 					}
 				}
-				if(nextXCount < lookAhead) {
+				if(count < lookAhead) {
 					throw new Error();
 					let asdf = 0;
 				}
-                //moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - (nextXTotal / nextXCount)});
-				//moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - lastPoints});
-				//moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - median(allPoints)});
-				//moves.push({playerData: playerData, position: missingPositions[i], score: avgdev(allPoints)});
 				moves.push({playerData: playerData, position: missingPositions[i], score: customdev(allPoints)});
                 break;
             }
@@ -479,19 +471,6 @@
 
         return moves;
       }
-	  
-	  function median(arrayIn) {
-		let localArray = arrayIn.slice();
-		while(localArray.length > 2) {
-			localArray.splice(localArray.length-1, 1);
-			localArray.splice(0, 1);
-		}
-		if(localArray.length == 2) {
-			return average(localArray);
-		} else {
-			return localArray[0];
-		}
-	  }
 	  
 	  // This calculates a weighted deviation giving the highest weight
 	  // to the players with the highest poiints. The thinking is that
