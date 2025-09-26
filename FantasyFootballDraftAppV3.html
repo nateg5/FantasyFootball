@@ -447,18 +447,26 @@
             if(playerData.available === true) {
 				let nextXCount = 0;
 				let nextXTotal = 0;
+				let lastPoints = 0;
+				let allPoints = [];
 				let lookAhead = calculateLookAhead(teamIndex, missingPositions[i]);
 				for(let k = j; k < positionsMap.length && nextXCount < lookAhead; k++) {
 					if(positionsMap[k].available === true) {
 						nextXCount++;
 						nextXTotal += positionsMap[k].points;
+						lastPoints = positionsMap[k].points;
+						allPoints.push(positionsMap[k].points);
 					}
 				}
 				if(nextXCount < lookAhead) {
 					throw new Error();
 					let asdf = 0;
 				}
-                moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - (nextXTotal / nextXCount)});
+                //moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - (nextXTotal / nextXCount)});
+				//moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - lastPoints});
+				//moves.push({playerData: playerData, position: missingPositions[i], score: playerData.points - median(allPoints)});
+				//moves.push({playerData: playerData, position: missingPositions[i], score: avgdev(allPoints)});
+				moves.push({playerData: playerData, position: missingPositions[i], score: customdev(allPoints)});
                 break;
             }
           }
@@ -471,6 +479,37 @@
 
         return moves;
       }
+	  
+	  function median(arrayIn) {
+		let localArray = arrayIn.slice();
+		while(localArray.length > 2) {
+			localArray.splice(localArray.length-1, 1);
+			localArray.splice(0, 1);
+		}
+		if(localArray.length == 2) {
+			return average(localArray);
+		} else {
+			return localArray[0];
+		}
+	  }
+	  
+	  // This calculates a weighted deviation giving the highest weight
+	  // to the players with the highest poiints. The thinking is that
+	  // it is unlikely that all players at a position would be drafted
+	  // leaving my team with the very last player at that position.
+	  function customdev(arrayIn) {
+		if(arrayIn.length == 1) {
+			return 0;
+		}
+		let total = 0;
+		let denominator = 0;
+		for(let i = 1; i < arrayIn.length; i++) {
+			total += ((arrayIn[0] - arrayIn[i]) * (arrayIn.length - i));
+			denominator += (arrayIn.length - i);
+		}
+		let deviation = total / denominator;
+		return deviation;
+	  }
 
       function draftPlayer(teamIndex, playerData) {
         draftResults[teamIndex].push(playerData);
